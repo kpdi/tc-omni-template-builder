@@ -101,14 +101,14 @@
       <img
         width="158"
         height="36"
-        src="{assetsRoot}/images/ad/canadian-tire/black-friday-red-thursday-dark-158x36.svg"
+        src="{assetsRoot}/images/ad/canadian-tire/black-friday-dark-186x29.svg"
         alt="Red Thursday Sale Promo Banner" />
 
       <a
         href={content.link}
         target="_blank"
-        class="flex h-[28px] w-[28px] items-center justify-center rounded-full bg-white cursor-pointer">
-        <img width="16" height="16" src="{assetsRoot}/images/ad/canadian-tire/chevron-right-black.svg" alt="Chevron icon" />
+        class="flex h-[28px] w-[28px] items-center justify-center rounded-full bg-black cursor-pointer">
+        <img width="16" height="16" src="{assetsRoot}/images/ad/canadian-tire/chevron-right-white.svg" alt="Chevron icon" />
       </a>
     </div>
   </div>
@@ -160,23 +160,23 @@
       <!--Main content-->
       <div>
         <img
-          width="230"
-          height="53"
-          class="object-contain h-[53px]"
-          src="{assetsRoot}/images/ad/canadian-tire/black-friday-red-thursday-dark-230x53.svg"
+          width="131"
+          height="67"
+          class="object-contain h-[67px]"
+          src="{assetsRoot}/images/ad/canadian-tire/black-friday-dark-131x67.svg"
           alt="Red Thursday Sale Promo Banner" />
 
-        <div class="flex flex-col gap-1 pb-2.5 pt-2">
+        <div class="flex flex-col gap-1.5 pb-2.5 pt-2">
           <h3 class="text-lg leading-[100%] font-extrabold text-white font-ct-eastman-grotesque">
             OUR LOWEST PRICES <br> OF THE YEAR<sup>†</sup>
           </h3>
-          <h4 class="text-base leading-[100%] font-medium text-black font-ct-eastman-grotesque"><Validity {content} {lang} /></h4>
-          <h2 class="text-[58px] uppercase font-extrabold leading-none text-white max-w-[268px] max-h-[98px] overflow-hidden shrink-0 w-[268px] h-[98px] font-ct-eastman-compressed" use:autoSize>
+          <h4 class="text-base leading-[100%] font-bold text-black font-ct-eastman-grotesque"><Validity {content} {lang} /></h4>
+          <h2 class="text-[58px] font-extrabold leading-none text-white uppercase max-w-[268px] max-h-[98px] overflow-hidden shrink-0 w-[268px] h-[98px] font-ct-eastman-compressed" use:autoSize>
             {content.savings}
           </h2>
         </div>
 
-        <!--CTA-->
+        <!--CTA--> 
         <div>
           <a
             href={content.link}
@@ -194,7 +194,7 @@
       <!--Main content-->
 
       <!--PRODUCT-->
-      <div class="relative pt-1.5">
+      <div class="relative pt-2.5">
         <img
           class="mx-auto max-h-[200px] overflow-hidden object-contain"
           alt={content.name}
@@ -255,7 +255,7 @@
   <!--/TALL-->
   {:else if aspectRatio < 1.5}
   <!--SQUARE-->
-  {@const LOGO_SIZE = [48, 45] as [number, number]}
+  {@const LOGO_SIZE = [48, 60] as [number, number]}
   <div
     class="flex h-full justify-between overflow-hidden bg-[#ED1C24] bg-size-[300px_250px] bg-[url('{assetsRoot}/images/ad/canadian-tire/bg-triangle-red-600x500.png')] py-2.5">
     <!--COL(left)-->
@@ -287,16 +287,16 @@
       <!--IMG-->
       <div class="relative mt-3 flex flex-col gap-1.5">
         <img
-          width="107"
-          height="69"
-          class="mx-auto- h-[69px] object-contain"
-          src="{assetsRoot}/images/ad/canadian-tire/black-friday-red-thursday-dark-107x69.svg"
+          width="81"
+          height="41"
+          class="mx-auto- h-[41px] object-contain"
+          src="{assetsRoot}/images/ad/canadian-tire/black-friday-dark-81x41.svg"
           alt="Red Thursday Sale Promo Banner" />
         <h2
-          class="shrink-0 text-[24px] font-extrabold uppercase leading-none text-white max-w-[124px] max-h-[48px] w-[124px] h-[48px] overflow-hidden font-ct-eastman-compressed" use:autoSize>
+          class="shrink-0 text-[28px] font-extrabold leading-none text-white uppercase max-w-[124px] shrink-0 max-h-[56px] w-[124px] h-[56px] overflow-hidden font-ct-eastman-compressed" use:autoSize>
           {content.savings}
         </h2>
-
+        <h4 class="text-sm leading-[100%] font-medium text-black font-ct-eastman-grotesque overflow-hidden max-w-[124px] max-h-[20px]" use:autoSize><Validity {content} {lang}  /></h4>
         <!--CTA-->
         <div class="w-[124px]">
           <a
@@ -317,7 +317,7 @@
 
     <!--COL(right)-->
     <div 
-      class="mx-auto flex w-[160px] shrink-0 items-center pl-2.5 pr-2.5" 
+      class="mx-auto flex w-[160px] shrink-0 items-center pl-1.5 pr-2.5" 
       use:animation={{
         controller: animationController,
         options: {
@@ -434,14 +434,12 @@
       <!--Black Friday image and Text-->
       <div class="flex items-start gap-4">
         <img
-          width="230"
-          height="52"
+          width="386"
+          height="60"
           loading="lazy"
           class="object-contain"
-          src="{assetsRoot}/images/ad/canadian-tire/black-friday-red-thursday-dark-227x52.svg"
+          src="{assetsRoot}/images/ad/canadian-tire/black-friday-dark-386x60.svg"
           alt="Black Friday Banner" />
-        
-        <h3 class="text-xl text-white font-extrabold leading-[0.9] font-ct-eastman-grotesque">OUR LOWEST <br> PRICES OF <br> THE YEAR†</h3>
       </div>
       <!--/Black Friday image and Text-->
   
@@ -449,10 +447,10 @@
       <div class="pb-1.5 pt-2">
         <p class="text-lg font-medium leading-6 text-black font-ct-eastman-grotesque pb-0.5"><Validity {content} {lang} /></p>
         <h2 class="text-[70px] font-extrabold text-white uppercase font-ct-eastman-compressed leading-none max-w-[565px] max-h-[70px] overflow-hidden shrink-0 w-[565px] h-[70px]" use:autoSize>
-          {content.savings}
+          {content.savings} 
         </h2>
       </div>
-      <!--/Promo text-->
+      <!--/Promo text--> 
   
       <!--CTA-->
       <div
@@ -598,29 +596,13 @@
           },
         }}> 
         <img
-          width="230"
-          height="53"
-          class="object-contain h-[53px]"
-          src="{assetsRoot}/images/ad/canadian-tire/black-friday-red-thursday-dark-230x53.svg"
+          width="350"
+          height="54"
+          class="object-contain h-[54px]"
+          src="{assetsRoot}/images/ad/canadian-tire/black-friday-dark-350x54.svg"
           alt="Red Thursday Sale Promo Banner" />
       </div>
       
-      <div class="max-w-36"
-        use:animation={{
-          controller: animationController,
-          options: {
-            name: "fadeIn",
-            normal: {
-              duration: 250,
-            },
-            reverse: {
-              delay: 5000,
-              duration: 50,
-            },
-          },
-        }}>
-        <h2 class="text-xl text-white font-extrabold leading-5 font-ct-eastman-grotesque">OUR LOWEST PRICES OF THE YEAR†</h2>
-      </div>
 
       <!--CTA-->
       <div 
