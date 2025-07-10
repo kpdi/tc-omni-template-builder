@@ -325,8 +325,12 @@
     @theme {
       --color-adonis-blue-darker: #183982;
       --color-adonis-blue-light: #166884;
+      --color-adonis-blue-lighter: #1D3983;
+      --color-adonis-blue-extralight: #00416B;
       --color-adonis-blue-medium: #12566f;
+      --color-adonis-sky-medium: #1F7BA0;
       --color-adonis-red-medium: #d5002c;
+      --color-adonis-yellow-dark: #F8DB0F;
       --color-adonis-yellow-medium: #fada0c;
     }
   </style>
