@@ -220,7 +220,7 @@
     @font-face {
       font-family: "Gotham Condensed";
       src: url("https://iheyhknkyvnxvedrtxqk.supabase.co/storage/v1/object/public/assets/fonts/gotham-condensed-medium.woff2")
-        format("woff2");
+       format("woff2");
       font-weight: 500;
       font-display: swap;
     }

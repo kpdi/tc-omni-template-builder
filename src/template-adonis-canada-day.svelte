@@ -22,7 +22,6 @@
   <style type="text/tailwindcss">
     @theme {
       --color-adonis-blue-lighter: #1d3983;
-      --color-adonis-blue-extralight: #00416b;
       --color-adonis-sky-medium: #1f7ba0;
       --color-adonis-red-medium: #d5002c;
       --color-adonis-yellow-dark: #f8db0f;
@@ -33,15 +32,15 @@
 {#if aspectRatio > 6 && aspectRatio < 7}
   <!--THIN-->
   <div
-    class="bg-[#EDD2A9] flex h-full justify-between overflow-hidden bg-[url('{assetsRoot}/images/ad/adonis/bg-adonis-stone-320x50.svg')] bg-cover px-2 py-1.5"
+    class="bg-[#CC112C] flex h-full justify-between overflow-hidden bg-[url('{assetsRoot}/images/ad/adonis/bg-adonis-canada-320x50.svg')] bg-cover px-2 py-1.5"
   >
     <!--LOGO-->
     <img
-      width="130"
-      height="48"
+      width="128"
+      height="46"
       class="shrink-0 self-center"
       alt="Adonis - A world of freshness"
-      src="{assetsRoot}/images/ad/adonis/logo-adonis-red.svg"
+      src="{assetsRoot}/images/ad/adonis/logo-adonis-white.svg"
       use:animation={{
         controller: animationController,
         options: {
@@ -62,7 +61,7 @@
     <a
       href={content.link}
       target="_blank"
-      class="bg-adonis-sky-medium font-gotham hover:bg-adonis-sky-medium/90 flex-none self-center rounded px-3 py-1 text-center text-sm text-center font-bold text-white transition-colors duration-300 ease-in-out"
+      class="bg-adonis-sky-medium font-gotham hover:bg-adonis-sky-medium/90 flex-none self-center rounded px-3 py-1 text-center text-sm font-bold text-white transition-colors duration-300 ease-in-out"
       use:animation={{
         controller: animationController,
         options: {
@@ -90,7 +89,7 @@
   <!--Tall-->
   {@const LOGO_SIZE = [93, 75] as [number, number]}
   <div
-    class="bg-[#EDD2A9] flex h-full flex-col bg-[url('{assetsRoot}/images/ad/adonis/bg-adonis-stone-300x600.svg')] bg-cover py-2.5 pr-2.5 pl-3"
+    class="bg-[#CC112C] flex h-full flex-col bg-[url('{assetsRoot}/images/ad/adonis/bg-adonis-canada-300x600.svg')] bg-cover py-2.5 pr-2.5 pl-3"
   >
     <!--Header-->
     <div
@@ -109,7 +108,7 @@
         width="240"
         height="88"
         alt="Adonis - A world of freshness"
-        src="{assetsRoot}/images/ad/adonis/logo-adonis-red.svg"
+        src="{assetsRoot}/images/ad/adonis/logo-adonis-white.svg"
       />
       <!--/Logo-->
     </div>
@@ -208,7 +207,7 @@
                 class="text-[40px] text-adonis-yellow-dark leading-[90%] -rotate-3 font-bold font-kapra
               [text-shadow:-1px_-1px_0_#1D3983,1px_1px_0_#1D3983,-1px_1px_0_#1D3983,1px_-1px_0_#1D3983]"
               >
-                33<span
+                43<span
                   class="align-top text-[20px] ml-0.5 [text-shadow:-1px_-1px_0_#1D3983,1px_1px_0_#1D3983,-1px_1px_0_#1D3983,1px_-1px_0_#1D3983]"
                   >%</span
                 >
@@ -219,16 +218,16 @@
 
           <!--Price Section-->
           <div
-            class="font-kapra text-adonis-red-medium relative top-7 left-1 flex -translate-y-1/2 justify-center px-1 py-0"
+            class="font-kapra text-white relative top-[26px] left-1 flex -translate-y-1/2 justify-center px-1 py-0"
           >
             <span
-              class="text-[80px] leading-none font-bold [text-shadow:-2px_-2px_0_white,2px_2px_0_white,-2px_2px_0_white,2px_-2px_0_white]"
+              class="text-[80px] leading-none font-bold [text-shadow:-2px_-2px_0_#572D2E,2px_2px_0_#572D2E,-2px_2px_0_#572D2E,2px_-2px_0_#572D2E]"
             >
               7
             </span>
             <span class="-mt-px ml-0.5 flex flex-col">
               <span
-                class="mt-[6px] text-[48px] leading-none font-bold [text-shadow:-2px_-2px_0_white,2px_2px_0_white,-2px_2px_0_white,2px_-2px_0_white]"
+                class="mt-[6px] text-[48px] leading-none font-bold [text-shadow:-2px_-2px_0_#572D2E,2px_2px_0_#572D2E,-2px_2px_0_#572D2E,2px_-2px_0_#572D2E]"
               >
                 99
               </span>
@@ -241,9 +240,7 @@
         <!--/Left (col)-->
 
         <!--Right (col)-->
-        <div
-          class="font-gotham-condensed text-left text-adonis-blue-extralight"
-        >
+        <div class="font-gotham-condensed text-left text-white">
           <!-- svelte-ignore a11y_missing_content -->
           <h2
             class="max-h-[116px] max-w-[158px] overflow-hidden text-[26px] leading-[23px] font-bold z-10"
@@ -322,7 +319,7 @@
         {/if}
       </a>
       <h3
-        class="font-gotham-condensed max-h-[24px] max-w-[278px] overflow-hidden text-[20px] text-adonis-blue-extralight"
+        class="font-gotham-condensed max-h-[24px] max-w-[278px] overflow-hidden text-[20px] text-white"
       >
         <Validity {content} {lang} />
       </h3>
@@ -334,7 +331,7 @@
   <!--Square-->
   {@const LOGO_SIZE = [48, 45] as [number, number]}
   <div
-    class="relative bg-[#EDD2A9] flex h-full overflow-hidden bg-[url('{assetsRoot}/images/ad/adonis/bg-adonis-stone-300x250.svg')] bg-cover py-2"
+    class="relative bg-[#CC112C] flex h-full overflow-hidden bg-[url('{assetsRoot}/images/ad/adonis/bg-adonis-canada-300x250.svg')] bg-cover py-2"
   >
     <!--Col (left)-->
     <div
@@ -359,7 +356,7 @@
           width="144"
           height="56"
           alt="Adonis - A world of freshness"
-          src="{assetsRoot}/images/ad/adonis/logo-adonis-red.svg"
+          src="{assetsRoot}/images/ad/adonis/logo-adonis-white.svg"
         />
       </div>
       <!--/Logo-->
@@ -473,7 +470,7 @@
             class="w-[70px] h-[22px] flex items-center justify-end border border-white bg-adonis-blue-lighter text-white rounded-tl-md rounded-br-md text-right px-1"
           >
             <span
-              class="text-[11px] font-medium uppercase font-gotham-condensed leading-none mt-px"
+              class="text-[11px] font-medium uppercase font-gotham-condensed leading-none mt-px z-10"
               >SAVINGS</span
             >
           </div>
@@ -493,16 +490,16 @@
 
         <!--Price Section-->
         <div
-          class="font-kapra text-adonis-red-medium relative -top-3 flex -translate-y-1/2-- justify-start px-1 py-0"
+          class="font-kapra text-white relative -top-3 flex -translate-y-1/2-- justify-start px-1 py-0"
         >
           <span
-            class="text-[70px] leading-none font-medium [text-shadow:-1px_-1px_0_white,1px_1px_0_white,-1px_1px_0_white,1px_-1px_0_white]"
+            class="text-[70px] leading-none font-medium [text-shadow:-1px_-1px_0_#572D2E,1px_1px_0_#572D2E,-1px_1px_0_#572D2E,1px_-1px_0_#572D2E]"
           >
             7
           </span>
           <span class="-mt-px ml-0.5 flex flex-col">
             <span
-              class="mt-[6px] text-[40px] leading-none font-medium [text-shadow:-1px_-1px_0_white,1px_1px_0_white,-1px_1px_0_white,1px_-1px_0_white]"
+              class="mt-[6px] text-[40px] leading-none font-medium [text-shadow:-1px_-1px_0_#572D2E,1px_1px_0_#572D2E,-1px_1px_0_#572D2E,1px_-1px_0_#572D2E]"
             >
               99
             </span>
@@ -515,7 +512,7 @@
 
       <!--Name-->
       <div
-        class="font-gotham-condensed -mt-[7px] text-right leading-none text-adonis-blue-extralight"
+        class="font-gotham-condensed -mt-[7px] mb-2 text-right leading-none text-white"
       >
         <h2
           class="max-h-[72px] max-w-[122px] overflow-hidden text-[18px] font-bold"
@@ -596,7 +593,7 @@
         {/if}
       </a>
       <h3
-        class="font-gotham-condensed max-h-[25px] max-w-[280px] overflow-hidden text-[15px] text-adonis-blue-extralight"
+        class="font-gotham-condensed max-h-[25px] max-w-[280px] overflow-hidden text-[15px] text-white"
       >
         <Validity {content} {lang} />
       </h3>
@@ -606,9 +603,9 @@
   <!--/Square-->
 {:else}
   <!--Wide-->
-  {@const LOGO_SIZE = [45, 40] as [number, number]}
+  {@const LOGO_SIZE = [50, 40] as [number, number]}
   <div
-    class="bg-[#EDD2A9] flex h-full gap-x-2 overflow-hidden bg-[url('{assetsRoot}/images/ad/adonis/bg-adonis-stone-728x90.svg')] bg-cover px-2"
+    class="bg-[#CC112C] flex h-full gap-x-2 overflow-hidden bg-[url('{assetsRoot}/images/ad/adonis/bg-adonis-canada-728x90.svg')] bg-cover px-2"
   >
     <!--Brand-->
     <div
@@ -632,7 +629,7 @@
         width="160"
         height="64"
         alt="Adonis - A world of freshness"
-        src="{assetsRoot}/images/ad/adonis/logo-adonis-red.svg"
+        src="{assetsRoot}/images/ad/adonis/logo-adonis-white.svg"
       />
       <!--/Logo-->
     </div>
@@ -748,7 +745,7 @@
             class="text-[26px] leading-[90%] -rotate-3 font-bold text-adonis-yellow-dark font-kapra
           [text-shadow:-1px_-1px_0_#1D3983,1px_1px_0_#1D3983,-1px_1px_0_#1D3983,1px_-1px_0_#1D3983]"
           >
-            27<span
+            43<span
               class="align-top text-[18px] ml-0.5 [text-shadow:-1px_-1px_0_#1D3983,1px_1px_0_#1D3983,-1px_1px_0_#1D3983,1px_-1px_0_#1D3983]"
               >%</span
             >
@@ -758,24 +755,22 @@
 
       <!--Price Section-->
       <div
-        class="font-kapra text-adonis-red-medium relative -top-3 flex justify-start px-1 py-0"
+        class="font-kapra text-white relative -top-3 flex justify-start px-1 py-0"
       >
         <span
-          class="text-[64px] leading-none font-medium [text-shadow:-1px_-1px_0_white,1px_1px_0_white,-1px_1px_0_white,1px_-1px_0_white]"
+          class="text-[64px] leading-none font-medium [text-shadow:-1px_-1px_0_#572D2E,1px_1px_0_#572D2E,-1px_1px_0_#572D2E,1px_-1px_0_#572D2E]"
         >
           7
         </span>
         <span class="-mt-px ml-0.5 flex flex-col">
           <span
-            class="mt-[6px] text-[38px] leading-none font-medium [text-shadow:-1px_-1px_0_white,1px_1px_0_white,-1px_1px_0_white,1px_-1px_0_white]"
+            class="mt-[6px] text-[38px] leading-none font-medium [text-shadow:-1px_-1px_0_#572D2E,1px_1px_0_#572D2E,-1px_1px_0_#572D2E,1px_-1px_0_#572D2E]"
           >
             99
           </span>
-          <span class="mt-0.5 ml-1 text-sm leading-none text-adonis-red-medium">
-            /lib
-          </span>
+          <span class="ml-1 text-sm leading-none"> /lib </span>
         </span>
-        <span class="text-sm font-semibold mt-1.5 ml-0.5">+TX</span>
+        <span class="text-sm font-semibold mt-2 ml-1">+TX</span>
       </div>
       <!--/Price Section-->
     </div>
@@ -783,7 +778,7 @@
 
     <!--NAME-->
     <div
-      class="font-gotham-condensed gap-px flex w-[144px] py-1 flex-col justify-center text-adonis-blue-extralight"
+      class="font-gotham-condensed gap-px flex w-[144px] py-1 flex-col justify-center text-white"
       use:animation={{
         controller: animationController,
         options: {
@@ -872,7 +867,7 @@
         {/if}
       </a>
       <h3
-        class="font-gotham-condensed max-h-[25px] max-w-[144px] mt-px overflow-hidden text-[15px] text-center text-adonis-blue-extralight"
+        class="font-gotham-condensed max-h-[25px] max-w-[144px] overflow-hidden text-[15px] text-center text-white mt-px"
       >
         <Validity {content} {lang} />
       </h3>
