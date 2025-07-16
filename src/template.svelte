@@ -467,20 +467,16 @@
     >
       <!--Saving-->
       <div class="ml-auto mt-0.5">
-        <div class="relative">
+        <div class="relative hidden">
           <!--Savings Box-->
           <div
-            class="w-[70px] h-[22px] flex items-center justify-end border border-white bg-adonis-blue-lighter text-white rounded-tl-md rounded-br-md text-right px-1"
-          >
-            <span
-              class="text-[11px] font-medium uppercase font-gotham-condensed leading-none mt-px"
-              >SAVINGS</span
-            >
+            class="w-[70px] h-[22px] flex items-center justify-end border border-white bg-adonis-blue-lighter text-white rounded-tl-md rounded-br-md text-right px-1">
+            <span class="text-[11px] font-medium uppercase font-gotham-condensed leading-none mt-px">SAVINGS</span>
           </div>
+
           <!--Yellow 33%-->
           <div class="absolute -top-2.5 left-1">
-            <span
-              class="text-[26px] leading-[90%] -rotate-3 font-bold text-adonis-yellow-dark font-kapra
+            <span class="text-[26px] leading-[90%]---- leading-none -rotate-3 font-bold text-adonis-yellow-dark font-kapra
             [text-shadow:-1px_-1px_0_#1D3983,1px_1px_0_#1D3983,-1px_1px_0_#1D3983,1px_-1px_0_#1D3983]"
             >
               27<span
@@ -491,9 +487,47 @@
           </div>
         </div>
 
+        <!--SAVINGS-->
+        <!-- <div class="bg-blue-500 relative">
+          <span class="font-gotham-condensed text-[10px]">Prefix</span>
+
+          <span class="font-kapra text-[30px]">
+            <span>33</span>
+            <sup class="-top-[6px]">%</sup>
+          </span>
+
+          
+          <span class="font-gotham-condensed text-[10px]">Savings</span>
+        </div> -->
+        <!--/SAVINGS-->
+
+        {#if content.savings}
+          {@const match = content.savings.match(/^(.*?)(\d+)(%?)(.*)$/)}
+          {@const [
+            ,
+            prefix,
+            number,
+            percent,
+            suffix
+          ] = match ?? ['', '', '', '', '']}
+          <div class="bg-blue-500 relative">
+            {#if prefix}
+              <span class="font-gotham-condensed text-[10px]">Prefix</span>
+            {/if}
+
+            <span class="font-kapra text-[30px]">
+              <span>{number}</span>
+              <sup class="-top-[6px]">{percent}</sup>
+            </span>
+            <span class="font-gotham-condensed text-[10px]">{suffix}</span>
+          </div>
+        {/if}
+      
+      
+
         <!--Price Section-->
         <div
-          class="font-kapra text-adonis-red-medium relative -top-3 flex -translate-y-1/2-- justify-start px-1 py-0"
+          class="font-kapra text-adonis-red-medium relative -top-3 flex -translate-y-1/2-- justify-start px-1 py-0 hidden"
         >
           <span
             class="text-[70px] leading-none font-medium [text-shadow:-1px_-1px_0_white,1px_1px_0_white,-1px_1px_0_white,1px_-1px_0_white]"
@@ -587,8 +621,7 @@
       <a
         href={content.link}
         target="_blank"
-        class="bg-adonis-sky-medium font-gotham hover:bg-adonis-sky-medium/90 block rounded px-3 py-1 text-center text-[12px] leading-none font-bold text-white transition-colors duration-300 ease-in-out"
-      >
+        class="bg-adonis-sky-medium font-gotham hover:bg-adonis-sky-medium/90 block rounded px-3 py-1 text-center text-[12px] leading-none font-bold text-white transition-colors duration-300 ease-in-out">
         {#if lang === "en"}
           SEE OUR FLYER
         {:else}

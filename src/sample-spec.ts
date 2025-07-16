@@ -90,5 +90,5 @@ export const spec: RenderSpec = {
   editable: false,
   lang: "en",
   mode: "auto",
-  size: [320, 50],
+  size: [300, 250],
 };
