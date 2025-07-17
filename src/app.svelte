@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { tick } from "svelte";
   import {
     pauseAnimations,
     resetAnimations,
@@ -6,21 +7,19 @@
     stepAnimations,
     type AnimationController,
   } from "./animation-controller";
+  import { setEditableController } from "./editable";
+  import { handleAppMessage, sendRendererMessage } from "./messages";
   import {
-    setEditing,
-    updateEditables,
-    type EditController,
-  } from "./edit-controller";
-  import type { RenderArgs, RenderSpec } from "./template";
-  import {
-    createMessage,
-    handleMessage,
-    type AppMessage,
-    type RendererMessage,
-    type TypedMessage,
-  } from "./messages";
-  import { tick } from "svelte";
-  import Template from "./template.svelte";
+    getRenderFrameVars,
+    type RenderArgs,
+    type RenderSpec,
+    type RenderVars,
+  } from "./template";
+  import Template, { ITEMS_PER_FRAME } from "./template.svelte";
+
+  // TYPES
+
+  type ItemCount = typeof ITEMS_PER_FRAME;
 
   // PROPS
 
@@ -32,12 +31,10 @@
 
   // STATE
 
-  let frames = $state(deepCopy(spec.data.frames));
+  let renderVars = $state(deepCopy(spec.data));
   let frameIndex = $state(0);
 
   // DERIVED
-
-  const frame = $derived(frames[frameIndex]);
 
   const animationController: AnimationController = {
     animations: new Set(),
@@ -50,62 +47,31 @@
     },
   };
 
-  const editController: EditController = {
-    editables: new Set(),
-    config: {
-      onStartEditing(editable) {
-        pause();
-        const { config, node } = editable;
-        const { itemIndex, key } = config;
-        const { top, left, width, height } = node.getBoundingClientRect();
-        notify(
-          createMessage<RendererMessage>("edit", {
-            frameIndex,
-            itemIndex,
-            key,
-            top,
-            left,
-            width,
-            height,
-          })
-        );
-      },
-      onStopEditing() {
-        notify(createMessage<RendererMessage>("edit", undefined));
-      },
-    },
-    state: {
-      editing: spec.editable,
-    },
-  };
+  // Get the variables required to render the current frame
+  const frame = $derived(
+    getRenderFrameVars<number, ItemCount>(renderVars, frameIndex)
+  );
 
-  const args: RenderArgs = $derived({
+  const args: RenderArgs<ItemCount> = $derived({
     animationController,
-    editController,
-    items: frame.items,
+    frame,
+    frameIndex,
     lang: spec.lang,
     size: spec.size,
+    templateId: spec.templateId,
   });
 
-  function notify<Message extends RendererMessage, Type extends keyof Message>(
-    message: TypedMessage<Message, Type>
-  ) {
-    // Write to the console for the builder
-    if ("payload" in message) {
-      console.log(message.type, message.payload);
-    } else {
-      console.log(message.type);
-    }
-    // Write to the parent window for the app
-    window.parent?.postMessage(message, "*");
-  }
+  const editableController = setEditableController(
+    spec.editable,
+    spec.templateId
+  );
 
   /**
    * Callback for when all animations are done.
    */
   function onDone(controller: AnimationController) {
-    if (frameIndex === spec.data.frames.length - 1) {
-      notify(createMessage<RendererMessage>("done"));
+    if (frameIndex === spec.frames - 1) {
+      sendRendererMessage("done");
       if (controller.options.mode === "manual") {
         return;
       }
@@ -113,42 +79,65 @@
     } else {
       frameIndex++;
     }
-    notify(createMessage<RendererMessage>("frame", frameIndex));
+    sendRendererMessage("frame", frameIndex);
     resetAnimations(controller);
   }
 
-  function pause() {
-    animationController.options.mode = "manual";
-    pauseAnimations(animationController);
-    notify(createMessage<RendererMessage>("paused"));
-  }
-
+  /**
+   * Handle messages from the app.
+   */
   async function onMessage({ data }: MessageEvent) {
-    handleMessage<AppMessage>(data, {
-      cancel() {
-        setEditing(editController, undefined);
+    handleAppMessage<RenderVars<number, number>>(data, {
+      edit(contextId) {
+        editableController.edit(contextId);
       },
       goto(index) {
         frameIndex = index;
-        setEditing(editController, undefined);
+        editableController.edit(undefined);
         stepAnimations(animationController, undefined);
-        notify(createMessage<RendererMessage>("frame", frameIndex));
+        sendRendererMessage("frame", frameIndex);
       },
-      pause,
+      pause() {
+        animationController.options.mode = "manual";
+        stepAnimations(animationController, undefined);
+        pauseAnimations(animationController);
+
+        sendRendererMessage("paused", {
+          components: Object.fromEntries(
+            editableController.contexts
+              .entries()
+              .map(([name, context]) => [name, context.getDetails()])
+          ),
+          frameIndex,
+        });
+      },
       resume() {
         animationController.options.mode = "auto";
         resumeAnimations(animationController);
-        notify(createMessage<RendererMessage>("running"));
+        sendRendererMessage("running");
       },
       async step(ms) {
         stepAnimations(animationController, ms);
         await tick();
-        notify(createMessage<RendererMessage>("ready"));
+        sendRendererMessage("ready");
       },
-      update(data) {
-        ({ frameIndex } = data);
-        frames[frameIndex] = data.frame;
-        updateEditables(editController, data.frame);
+      async update(data) {
+        renderVars = data;
+        await tick();
+
+        // TODO: prevent positioning elements outside of the frame
+
+        if (!editableController.enabled) {
+          return;
+        }
+        const active = editableController.contexts
+          .values()
+          .find((context) => context.active);
+        if (!active) {
+          return;
+        }
+        const { position } = active.getDetails();
+        sendRendererMessage("position", position);
       },
     });
   }
@@ -291,22 +280,6 @@
       }
     }
 
-    .editable {
-      outline: 1px dashed transparent;
-      outline-offset: -1px;
-      border-radius: 4px;
-    }
-
-    #ad:hover .editable {
-      outline-color: rgba(0, 0, 255, 0.3);
-      background: rgba(0, 0, 0, 0.05);
-    }
-
-    .editable.editing,
-    #ad:hover .editable.editing {
-      outline-color: rgba(0, 0, 255, 0.4);
-      background: rgba(0, 0, 0, 0.05);
-    }
     .font-clash {
       font-family: "Clash Grotesk", sans-serif;
     }
