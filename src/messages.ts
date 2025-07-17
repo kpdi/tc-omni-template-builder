@@ -1,39 +1,37 @@
-import type { RenderContent, RenderItem } from "./template";
+import type { EditableDetails } from "./editable/context";
+import type { ContextId } from "./template";
 
-export type AppMessage = {
-  cancel: never;
+/**
+ * Message names and payloads sent from the app to the renderer.
+ */
+type AppMessage<V extends Record<string, any>> = {
+  edit: ContextId | undefined;
   goto: number;
   pause: never;
   resume: never;
   step: number | undefined;
-  update: {
-    frameIndex: number;
-    frame: {
-      items: RenderItem[];
-    };
-  };
+  update: V;
 };
 
-export type RendererMessage = {
+/**
+ * Message names and payloads sent from the renderer to the app.
+ */
+type RendererMessage = {
   done: never;
-  edit:
-    | {
-        frameIndex: number;
-        itemIndex: number;
-        key: keyof RenderContent;
-        top: number;
-        left: number;
-        width: number;
-        height: number;
-      }
-    | undefined;
   frame: number;
-  paused: never;
+  paused: {
+    components: Record<string, EditableDetails>;
+    frameIndex: number;
+  };
+  position: DOMRect;
   ready: never;
   running: never;
 };
 
-export type TypedMessage<Messages, Type extends keyof Messages> = Messages[Type] extends never
+export type TypedMessage<
+  Messages,
+  Type extends keyof Messages
+> = Messages[Type] extends never
   ? {
       type: Type;
     }
@@ -46,7 +44,7 @@ type MessageArgs<Messages> = {
   [K in keyof Messages]: Messages[K] extends never ? [K] : [K, Messages[K]];
 }[keyof Messages];
 
-export function createMessage<Messages extends Record<string, unknown>>(
+function createMessage<Messages extends Record<string, unknown>>(
   ...args: MessageArgs<Messages>
 ): TypedMessage<Messages, (typeof args)[0]> {
   return {
@@ -56,10 +54,12 @@ export function createMessage<Messages extends Record<string, unknown>>(
 }
 
 type Handlers<Messages> = {
-  [K in keyof Messages]: Messages[K] extends never ? () => void : (payload: Messages[K]) => void;
+  [K in keyof Messages]: Messages[K] extends never
+    ? () => void
+    : (payload: Messages[K]) => void;
 };
 
-export function handleMessage<Messages extends Record<string, unknown>>(
+function handleMessage<Messages extends Record<string, unknown>>(
   data: unknown,
   handlers: Handlers<Messages>
 ) {
@@ -78,3 +78,30 @@ export function handleMessage<Messages extends Record<string, unknown>>(
     }
   }
 }
+
+function sendMessage<Messages extends Record<string, unknown>>(
+  ...args: MessageArgs<Messages>
+) {
+  const message = createMessage<Messages>(...args);
+  // Write to the console for the builder
+  if ("payload" in message) {
+    console.log(message.type, message.payload);
+  } else {
+    console.log(message.type);
+  }
+  // Write to the parent window for the app
+  window.parent?.postMessage(message, "*");
+}
+
+export const createRendererMessage =
+  createMessage as typeof createMessage<RendererMessage>;
+
+export const handleAppMessage = handleMessage as <
+  V extends Record<string, any>
+>(
+  data: unknown,
+  handlers: Handlers<AppMessage<V>>
+) => void;
+
+export const sendRendererMessage =
+  sendMessage as typeof sendMessage<RendererMessage>;

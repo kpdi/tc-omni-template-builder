@@ -1,7 +1,7 @@
+import "@tailwindcss/browser";
 import * as svelte from "svelte";
 import App from "./app.svelte";
-import { type RenderSpec } from "./template";
-import "@tailwindcss/browser";
+import type { RenderSpec } from "./template";
 
 const target = document.getElementById("app");
 

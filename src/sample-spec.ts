@@ -1,94 +1,40 @@
-import { type RenderSpec } from "./template";
+import type { Language, RenderMode, RenderSize } from "./template";
 
-export const spec: RenderSpec = {
+export const spec = {
   data: {
-    frames: [
-      {
-        items: [
-          {
-            content: {
-              link: "https://raddar.ca",
-              name: "POIVRONS DOUX JAUNES, ORANGE, ROUGES",
-              path: "63fe18ec3e7cd81e86393c61/80208/68191a22273d9956312ee9a8/10004102",
-              logo1: "",
-              logo2:
-                "https://metrocommonapi.blob.core.windows.net/80208/logoImages/Slug_186903.png?version=328180fb",
-              logo3:
-                "https://metrocommonapi.blob.core.windows.net/80208/logoImages/Slug_69613.png?version=328180fb",
-              logo4: "",
-              price: "$1.99 /lb",
-              savings: "50% de rabais",
-              validTo: "2025-05-14",
-              category: "Fruit and Vegetables",
-              imageUrl:
-                "https://metrocommonapi.blob.core.windows.net/80208/productImages/10004102_3.eps.png?version=328180fb",
-              validFrom: "2025-05-08",
-              description: "Yellow, orange and red sweet peppers",
-              retailerName: "Adonis",
-              alternatePrice: "4.39/kg",
-              retailerLogoUrl:
-                "https://iheyhknkyvnxvedrtxqk.supabase.co/storage/v1/object/public/logos/adonis.en.png",
-            },
-            product: {
-              id: "10004102",
-              sku: "10004102",
-              name: {
-                en: "POIVRONS DOUX JAUNES, ORANGE, ROUGES",
-                fr: "POIVRONS DOUX JAUNES, ORANGE, ROUGES",
-              },
-              page: 1,
-              path: "63fe18ec3e7cd81e86393c61/80208/68191a22273d9956312ee9a8/10004102",
-              image: {
-                url: "https://metrocommonapi.blob.core.windows.net/80208/productImages/10004102_3.eps.png?version=328180fb",
-              },
-              logos: [],
-              price: {
-                text: { en: "$1.99 /lb", fr: "1,99 $ /lb" },
-                savings: {
-                  text: { en: "50% de rabais", fr: "50% de rabais" },
-                },
-                quantity: 1,
-              },
-              dealId: "80208",
-              bannerId: "63fe18ec3e7cd81e86393c61",
-              category: {
-                en: "Fruit and Vegetables",
-                fr: "Fruits et légumes",
-              },
-              description: {
-                en: "Yellow, orange and red sweet peppers  Canada and Mexico",
-                fr: "Canada et Mexique",
-              },
-              publicationId: "68191a22273d9956312ee9a8",
-              alternateImages: [
-                {
-                  url: "https://metrocommonapi.blob.core.windows.net/80208/images/80208_80208_P1_QUE_3.jpeg?version=328180fb",
-                  size: [2592, 3504],
-                },
-                {
-                  url: "https://metrocommonapi.blob.core.windows.net/80208/images/80208_80208_P1_QUE_3_72.jpeg?version=328180fb",
-                  size: [648, 876],
-                },
-                {
-                  url: "https://metrocommonapi.blob.core.windows.net/80208/images/80208_80208_P1_QUE_3_144.jpeg?version=328180fb",
-                  size: [1296, 1752],
-                },
-                {
-                  url: "https://metrocommonapi.blob.core.windows.net/80208/images/80208_80208_P1_QUE_3_216.jpeg?version=328180fb",
-                  size: [1944, 2628],
-                },
-              ],
-              alternatePrices: [
-                { text: { en: "4.39/kg", fr: "4.39/kg" }, quantity: 1 },
-              ],
-            },
-          },
-        ],
-      },
-    ],
+    "frame.0.item.0.link": "https://raddar.ca",
+    "frame.0.item.0.name": "POIVRONS DOUX JAUNES, ORANGE, ROUGES",
+    "frame.0.item.0.path":
+      "63fe18ec3e7cd81e86393c61/80208/68191a22273d9956312ee9a8/10004102",
+    "frame.0.item.0.logo1": "",
+    "frame.0.item.0.logo2":
+      "https://metrocommonapi.blob.core.windows.net/80208/logoImages/Slug_186903.png?version=328180fb",
+    "frame.0.item.0.logo3":
+      "https://metrocommonapi.blob.core.windows.net/80208/logoImages/Slug_69613.png?version=328180fb",
+    "frame.0.item.0.logo4": "",
+    "frame.0.item.0.price": "$1.99 /lb",
+    "frame.0.item.0.savings": "50% de rabais",
+    "frame.0.item.0.validTo": "2025-05-14",
+    "frame.0.item.0.category": "Fruit and Vegetables",
+    "frame.0.item.0.imageUrl":
+      "https://metrocommonapi.blob.core.windows.net/80208/productImages/10004102_3.eps.png?version=328180fb",
+    "frame.0.item.0.validFrom": "2025-05-08",
+    "frame.0.item.0.description": "Yellow, orange and red sweet peppers",
+    "frame.0.item.0.retailerName": "Adonis",
+    "frame.0.item.0.alternatePrice": "4.39/kg",
+    "frame.0.item.0.regularPrice": "reg. $10/kg +TX",
+    "frame.0.item.0.retailerLogoUrl":
+      "https://iheyhknkyvnxvedrtxqk.supabase.co/storage/v1/object/public/logos/adonis.en.png",
+    "frame.0.item.0.tax": "excluded",
   },
-  editable: false,
-  lang: "en",
-  mode: "auto",
-  size: [300, 250],
+  editable: true,
+  frames: 1 as 1,
+  lang: "en" as Language,
+  mode: "auto" as RenderMode,
+  size: [300, 250] as RenderSize,
+  templateId: 0,
+  // size: [300, 600],
+  // size: [320, 50],
+  // size: [728, 90],
+  // size: [970, 250],
 };

@@ -1,20 +1,15 @@
 <script lang="ts">
-  import type { Language, RenderContent } from "./template";
+  import type { Language, RenderItem } from "./template";
 
   type ValidityStrings = {
     validFromStr: string;
     validToStr: string;
   };
 
-  type Props = {
-    content: RenderContent;
-    lang: Language;
-  };
-
-  const { content, lang }: Props = $props();
+  const { item, lang }: { item: RenderItem; lang: Language } = $props();
 
   const { validFromStr, validToStr } = $derived(
-    getValidityStrings(content.validFrom, content.validTo, lang)
+    getValidityStrings(item.validFrom, item.validTo, lang)
   );
 
   function nexusToJsDate(date: string): Date {
