@@ -27,26 +27,39 @@ const autoSize = (debug = false): Attachment<HTMLElement> => {
         return;
       }
 
-      if (computedStyle.maxWidth === "none") {
-        console.error("width must be constrained", node);
-        return;
-      }
+      // if (computedStyle.maxWidth === "none") {
+      //   console.error("width must be constrained", node);
+      //   return;
+      // }
 
-      if (computedStyle.maxHeight === "none") {
-        console.error("height must be constrained", node);
-        return;
-      }
+      // if (computedStyle.maxHeight === "none") {
+      //   console.error("height must be constrained", node);
+      //   return;
+      // }
 
       if (computedStyle.webkitLineClamp !== "none") {
         console.error("line clamp must not be set", node);
         return;
       }
+ 
+      // Don't autosize until the font is loaded
+      const { fontFamily, fontSize, fontWeight } = computedStyle;
+      const font = `${fontWeight} ${fontSize} ${fontFamily}`;
+      document.fonts.load(font).then(async ([fontFace]) => {
+        if (fontFace) {
+          await fontFace.loaded;
+          console.log({
+            text: node.innerText,
+            font,
+            fontFace,
+          });
+        }
+        resize(node, debug);
 
-      resize(node, debug);
-
-      // Restore original overflow styles
-      node.style.overflowX = overflowX;
-      node.style.overflowY = overflowY;
+        // Restore original overflow styles
+        node.style.overflowX = overflowX;
+        node.style.overflowY = overflowY;
+      });
     }, 10);
 
     // Watch for content changes

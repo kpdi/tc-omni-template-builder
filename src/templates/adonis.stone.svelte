@@ -10,41 +10,31 @@
   import Link from "../editable/link.svelte";
   import Text from "../editable/text.svelte";
   import type { RenderArgs } from "../template";
+  import { parsePrice } from "../utils/price";
+  import { parseSavings } from "../utils/savings";
   import { getValidity } from "../utils/validity";
-
-  const { args }: { args: RenderArgs<typeof ITEMS_PER_FRAME> } = $props();
-  const { animationController, lang } = args;
-  const frame = $derived(args.frame);
-  const aspectRatio = $derived(args.size[0] / args.size[1]);
 
   const assetsRoot =
     "https://iheyhknkyvnxvedrtxqk.supabase.co/storage/v1/object/public/assets";
 
-  // Shared parsing logic for savings and price
-  const savings = $derived.by(() => {
-    if (!frame["item.0.savings"]) return null;
-    const match = frame["item.0.savings"].match(/^(.*?)(\d+)(%?)(.*)$/);
-    const [, prefix, number, percent, suffix] = match ?? ["", "", "", "", ""];
-    const prefixRatio = prefix.length / (prefix.length + suffix.length);
-    const suffixRatio = 1 - prefixRatio;
-    return { prefix, number, percent, suffix, prefixRatio, suffixRatio };
-  });
+  const { args }: { args: RenderArgs<typeof ITEMS_PER_FRAME> } = $props();
+  const { animationController, lang } = args;
 
-  const price = $derived.by(() => {
-    if (!frame["item.0.price"]) return null;
-    const [dollars, cents] = frame["item.0.price"]
-      .split(" /")[0]
-      .replace("$", "")
-      .split(/[.,]/);
-    const unit = frame["item.0.price"].includes("/")
-      ? `/${frame["item.0.price"].split("/")[1]}`
-      : null;
-    return { dollars, cents, unit };
-  });
-
+  const frame = $derived(args.frame);
+  const aspectRatio = $derived(args.size[0] / args.size[1]);
+  const price = $derived(parsePrice(frame["item.0.price"]));
+  const savings = $derived(parseSavings(frame["item.0.savings"]));
   const validity = $derived(
     getValidity(frame["item.0.validFrom"], frame["item.0.validTo"], lang)
   );
+  const animationParams = $derived({
+    controller: animationController,
+    options: {
+      name: "fadeIn",
+      normal: { duration: 250 },
+      reverse: { delay: 5000, duration: 50 },
+    },
+  });
 </script>
 
 <svelte:head>
@@ -63,14 +53,7 @@
   <!-- THIN LAYOUT (320x50) -->
   <div
     class="bg-[#EDD2A9] bg-[url('{assetsRoot}/images/ad/adonis/bg-adonis-stone-320x50.svg')] bg-cover h-full w-full overflow-hidden flex"
-    use:animation={{
-      controller: animationController,
-      options: {
-        name: "fadeIn",
-        normal: { duration: 250 },
-        reverse: { delay: 5000, duration: 50 },
-      },
-    }}
+    use:animation={animationParams}
   >
     <Row height="100%" class="px-[8px] py-[6px]">
       <!-- LOGO -->
@@ -84,7 +67,7 @@
           class="object-contain self-center"
           height={{ default: "100%" }}
           left={{ default: "0" }}
-          name="adonisLogo"
+          name="thin.adonisLogo"
           top={{ default: "0" }}
           width={{ default: "100%" }}
         />
@@ -95,7 +78,7 @@
         <Link
           href={{ bind: "item.0.link" }}
           {frame}
-          name="ctaLink"
+          name="thin.ctaLink"
           text={{
             default: lang === "en" ? "SEE OUR FLYER" : "VOIR NOTRE FLYER",
           }}
@@ -114,14 +97,7 @@
   <!-- TALL LAYOUT (300x600) -->
   <div
     class="bg-[#EDD2A9] bg-[url('{assetsRoot}/images/ad/adonis/bg-adonis-stone-300x600.svg')] bg-cover h-full w-full overflow-hidden"
-    use:animation={{
-      controller: animationController,
-      options: {
-        name: "fadeIn",
-        normal: { duration: 250 },
-        reverse: { delay: 5000, duration: 50 },
-      },
-    }}
+    use:animation={animationParams}
   >
     <Column width="100%" class="p-[10px]">
       <!-- HEADER WITH LOGO -->
@@ -135,7 +111,7 @@
           class="object-contain"
           height={{ default: "100%" }}
           left={{ default: "0" }}
-          name="adonisLogo"
+          name="tall.adonisLogo"
           top={{ default: "0" }}
           width={{ default: "100%" }}
         />
@@ -149,7 +125,7 @@
           class="object-contain"
           height={{ default: "100%" }}
           left={{ default: "0" }}
-          name="productImage"
+          name="tall.productImage"
           top={{ default: "0" }}
           width={{ default: "100%" }}
         />
@@ -162,7 +138,7 @@
           {frame}
           height={{ default: "33%" }}
           left={{ default: "0" }}
-          name="logo1"
+          name="tall.logo1"
           top={{ default: "0" }}
           width={{ default: "33%" }}
         />
@@ -172,7 +148,7 @@
           class="object-contain object-[right_top]"
           {frame}
           height={{ default: "33%" }}
-          name="logo2"
+          name="tall.logo2"
           right={{ default: "0" }}
           top={{ default: "0" }}
           width={{ default: "33%" }}
@@ -184,7 +160,7 @@
           {frame}
           height={{ default: "33%" }}
           left={{ default: "0" }}
-          name="logo3"
+          name="tall.logo3"
           bottom={{ default: "0" }}
           width={{ default: "33%" }}
         />
@@ -194,7 +170,7 @@
           class="object-contain object-[right_bottom]"
           {frame}
           height={{ default: "33%" }}
-          name="logo4"
+          name="tall.logo4"
           right={{ default: "0" }}
           bottom={{ default: "0" }}
           width={{ default: "33%" }}
@@ -205,14 +181,13 @@
       <Row height="164px">
         <Column width="140px" class="pt-[40px]">
           <!-- SAVINGS -->
-          {#if savings}
-            <!-- SAVINGS -->
-            <Row height="48px" class="pr-[40px]">
+          <!-- SAVINGS -->
+          <Row height="48px" class="pr-[40px]">
               <!-- BACKGROUND -->
               <Text
                 text={{ default: "" }}
                 {frame}
-                name="savingsBackground"
+                name="tall.savingsBackground"
                 class="bg-adonis-blue-lighter rounded-tl-md rounded-br-md border border-white"
                 height={{ default: "28px" }}
                 width={{ default: "100%" }}
@@ -221,29 +196,27 @@
               />
 
               <Row height="100%" class="p-[4px]">
-                {#if savings.prefix}
-                  <Column
-                    width="{savings.prefixRatio * 48}px"
-                    class="flex-1 pr-[4px] pb-[6px] pt-[24px]"
-                  >
-                    <Text
-                      text={{ default: savings.prefix }}
-                      {frame}
-                      name="savingsPrefix"
-                      class="font-semibold font-gotham-condensed text-white justify-end whitespace-nowrap"
-                      height={{ default: "100%" }}
-                      width={{ default: "100%" }}
-                      bottom={{ default: "0" }}
-                      left={{ default: "0" }}
-                    />
-                  </Column>
-                {/if}
-
-                <Column width="{savings.number.length === 1 ? 18 : 36}px">
+                <Column
+                  width="{savings ? savings.prefixRatio * 48 : 1}px"
+                  class="flex-1 pr-[4px] pb-[6px] pt-[24px]"
+                >
                   <Text
-                    text={{ default: savings.number }}
+                    text={{ default: savings?.prefix || "" }}
                     {frame}
-                    name="savingsNumber"
+                    name="tall.savingsPrefix"
+                    class="font-semibold font-gotham-condensed text-white justify-end whitespace-nowrap"
+                    height={{ default: "100%" }}
+                    width={{ default: "100%" }}
+                    bottom={{ default: "0" }}
+                    left={{ default: "0" }}
+                  />
+                </Column>
+
+                <Column width="{savings?.number?.length === 1 ? 18 : 36}px">
+                  <Text
+                    text={{ default: savings?.number || "" }}
+                    {frame}
+                    name="tall.savingsNumber"
                     class="font-kapra font-bold text-adonis-yellow-dark tracking-tighter justify-center"
                     height={{ default: "100%" }}
                     width={{ default: "100%" }}
@@ -253,9 +226,9 @@
                   />
 
                   <Text
-                    text={{ default: savings.percent }}
+                    text={{ default: savings?.percent || "" }}
                     {frame}
-                    name="savingsPercent"
+                    name="tall.savingsPercent"
                     class="font-kapra font-bold text-adonis-yellow-dark tracking-tighter justify-start"
                     height={{ default: "18px" }}
                     width={{ default: "14px" }}
@@ -265,35 +238,31 @@
                   />
                 </Column>
 
-                {#if savings.suffix}
-                  <Column
-                    width="{savings.suffixRatio * 48}px"
-                    class="flex-1 pl-[4px] pb-[6px] pt-[24px]"
-                  >
-                    <Text
-                      text={{ default: savings.suffix }}
-                      {frame}
-                      name="savingsSuffix"
-                      class="font-semibold font-gotham-condensed text-white whitespace-nowrap"
-                      height={{ default: "100%" }}
-                      width={{ default: "100%" }}
-                      bottom={{ default: "0" }}
-                      left={{ default: "0" }}
-                    />
-                  </Column>
-                {/if}
+                <Column
+                  width="{savings ? savings.suffixRatio * 48 : 1}px"
+                  class="flex-1 pl-[4px] pb-[6px] pt-[24px]"
+                >
+                  <Text
+                    text={{ default: savings?.suffix || "" }}
+                    {frame}
+                    name="tall.savingsSuffix"
+                    class="font-semibold font-gotham-condensed text-white whitespace-nowrap"
+                    height={{ default: "100%" }}
+                    width={{ default: "100%" }}
+                    bottom={{ default: "0" }}
+                    left={{ default: "0" }}
+                  />
+                </Column>
               </Row>
             </Row>
-          {/if}
 
           <!-- PRICE -->
-          {#if price}
-            <Row height="116px" class="mt-[-14px]">
-              <Column width={price.dollars.length === 1 ? "32px" : "64px"}>
+          <Row height="116px" class="mt-[-14px]">
+              <Column width={price?.dollars?.length === 1 ? "32px" : "64px"}>
                 <Text
-                  text={{ default: price.dollars }}
+                  text={{ default: price?.dollars || "" }}
                   {frame}
-                  name="priceDollars"
+                  name="tall.priceDollars"
                   class="font-kapra text-adonis-red-medium font-bold"
                   height={{ default: "100%" }}
                   width={{ default: "100%" }}
@@ -305,32 +274,28 @@
               </Column>
 
               <Column width="36px">
-                {#if price.cents}
-                  <Text
-                    text={{ default: price.cents }}
-                    {frame}
-                    name="priceCents"
-                    class="font-kapra text-adonis-red-medium font-bold"
-                    height={{ default: "100%" }}
-                    width={{ default: "100%" }}
-                    top={{ default: "4px" }}
-                    left={{ default: "0" }}
-                    style={{ "-webkit-text-stroke": "2px white" }}
-                  />
-                {/if}
+                <Text
+                  text={{ default: price?.cents || "" }}
+                  {frame}
+                  name="tall.priceCents"
+                  class="font-kapra text-adonis-red-medium font-bold"
+                  height={{ default: "100%" }}
+                  width={{ default: "100%" }}
+                  top={{ default: "4px" }}
+                  left={{ default: "0" }}
+                  style={{ "-webkit-text-stroke": "2px white" }}
+                />
 
-                {#if price.unit}
-                  <Text
-                    text={{ default: price.unit }}
-                    {frame}
-                    name="priceUnit"
-                    class="text-adonis-red-medium"
-                    height={{ default: "20px" }}
-                    width={{ default: "100%" }}
-                    top={{ default: "56px" }}
-                    left={{ default: "6px" }}
-                  />
-                {/if}
+                <Text
+                  text={{ default: price?.unit || "" }}
+                  {frame}
+                  name="tall.priceUnit"
+                  class="text-adonis-red-medium"
+                  height={{ default: "20px" }}
+                  width={{ default: "100%" }}
+                  top={{ default: "56px" }}
+                  left={{ default: "6px" }}
+                />
               </Column>
 
               <!-- TAX -->
@@ -339,7 +304,7 @@
                   <Text
                     text={{ default: "+TX" }}
                     {frame}
-                    name="priceTax"
+                    name="tall.priceTax"
                     class="text-adonis-red-medium font-semibold"
                     height={{ default: "14px" }}
                     width={{ default: "100%" }}
@@ -349,7 +314,6 @@
                 </Column>
               {/if}
             </Row>
-          {/if}
         </Column>
 
         <Column width="140px">
@@ -359,7 +323,7 @@
               <Text
                 text={{ bind: "item.0.name" }}
                 {frame}
-                name="name"
+                name="tall.name"
                 class="font-bold font-gotham-condensed text-adonis-blue-extralight text-left items-center"
                 height={{ default: "100%" }}
                 width={{ default: "100%" }}
@@ -375,7 +339,7 @@
               <Text
                 text={{ bind: "item.0.description" }}
                 {frame}
-                name="productDescription"
+                name="tall.productDescription"
                 class="text-adonis-blue-extralight text-left font-gotham-condensed"
                 height={{ default: "100%" }}
                 width={{ default: "100%" }}
@@ -390,7 +354,7 @@
               <Text
                 text={{ bind: "item.0.alternatePrice" }}
                 {frame}
-                name="alternatePrice"
+                name="tall.alternatePrice"
                 class="text-adonis-blue-extralight text-left font-gotham-condensed"
                 height={{ default: "100%" }}
                 width={{ default: "100%" }}
@@ -405,7 +369,7 @@
               <Text
                 text={{ bind: "item.0.regularPrice" }}
                 {frame}
-                name="regularPrice"
+                name="tall.regularPrice"
                 class="text-adonis-blue-extralight text-left font-gotham-condensed"
                 height={{ default: "100%" }}
                 width={{ default: "100%" }}
@@ -422,7 +386,7 @@
         <Link
           href={{ bind: "item.0.link" }}
           {frame}
-          name="ctaLink"
+          name="tall.ctaLink"
           text={{
             default: lang === "en" ? "SEE OUR FLYER" : "VOIR NOTRE FLYER",
           }}
@@ -440,7 +404,7 @@
       <Row height="24px" class="mt-[8px]">
         <Text
           {frame}
-          name="validity"
+          name="tall.validity"
           text={{ default: validity }}
           class="font-gotham-condensed text-adonis-blue-extralight"
           align={{ default: "center" }}
@@ -460,19 +424,7 @@
   >
     <div
       class="relative h-full w-full flex flex-col"
-      use:animation={{
-        controller: animationController,
-        options: {
-          name: "fadeIn",
-          normal: {
-            duration: 250,
-          },
-          reverse: {
-            delay: 5000,
-            duration: 50,
-          },
-        },
-      }}
+      use:animation={animationParams}
     >
       <!-- TOP SECTION -->
       <Row height="220px">
@@ -489,7 +441,7 @@
               class="object-contain object-left-top"
               height={{ default: "100%" }}
               left={{ default: "0" }}
-              name="adonisLogo"
+              name="square.adonisLogo"
               top={{ default: "0" }}
               width={{ default: "100%" }}
             />
@@ -504,7 +456,7 @@
               class="object-contain"
               height={{ default: "100%" }}
               left={{ default: "0" }}
-              name="productImage"
+              name="square.productImage"
               top={{ default: "0" }}
               width={{ default: "100%" }}
             />
@@ -517,7 +469,7 @@
               {frame}
               height={{ default: "33%" }}
               left={{ default: "0" }}
-              name="logo1"
+              name="square.logo1"
               top={{ default: "0" }}
               width={{ default: "33%" }}
             />
@@ -527,7 +479,7 @@
               class="object-contain object-[right_top]"
               {frame}
               height={{ default: "33%" }}
-              name="logo2"
+              name="square.logo2"
               right={{ default: "0" }}
               top={{ default: "0" }}
               width={{ default: "33%" }}
@@ -538,7 +490,7 @@
               class="object-contain object-[right_bottom]"
               {frame}
               height={{ default: "33%" }}
-              name="logo3"
+              name="square.logo3"
               right={{ default: "0" }}
               bottom={{ default: "0" }}
               width={{ default: "33%" }}
@@ -550,7 +502,7 @@
               {frame}
               height={{ default: "33%" }}
               left={{ default: "0" }}
-              name="logo4"
+              name="square.logo4"
               bottom={{ default: "0" }}
               width={{ default: "33%" }}
             />
@@ -561,7 +513,7 @@
             <Link
               href={{ bind: "item.0.link" }}
               {frame}
-              name="ctaLink"
+              name="square.ctaLink"
               text={{
                 default: lang === "en" ? "SEE OUR FLYER" : "VOIR NOTRE FLYER",
               }}
@@ -578,92 +530,86 @@
 
         <!-- RIGHT COLUMN -->
         <Column width="102px" class="pr-[8px]">
-          {#if savings}
-            <!-- SAVINGS -->
-            <Row height="28px" class="mt-[4px]">
-              <!-- BACKGROUND -->
-              <Column width="69px">
-                <Text
-                  text={{ default: "" }}
-                  {frame}
-                  name="savingsBackground"
-                  class="bg-adonis-blue-lighter rounded-tl-md rounded-br-md border border-white"
-                  height={{ default: "21px" }}
-                  width={{ default: "100%" }}
-                  bottom={{ default: "-6px" }}
-                  left={{ default: "0" }}
-                />
+          <!-- SAVINGS -->
+          <Row height="28px" class="mt-[4px]">
+            <!-- BACKGROUND -->
+            <Column width="69px">
+              <Text
+                text={{ default: "" }}
+                {frame}
+                name="square.savingsBackground"
+                class="bg-adonis-blue-lighter rounded-tl-md rounded-br-md border border-white"
+                height={{ default: "21px" }}
+                width={{ default: "100%" }}
+                bottom={{ default: "-6px" }}
+                left={{ default: "0" }}
+              />
 
-                <Row height="100%" class="px-[4px] pb-[2px]">
-                  {#if savings.prefix}
-                    <Column
-                      width="{savings.prefixRatio * 40}px"
-                      class="flex-1 pt-[16px]"
-                    >
-                      <Text
-                        text={{ default: savings.prefix }}
-                        {frame}
-                        name="savingsPrefix"
-                        class="font-semibold font-gotham-condensed text-white whitespace-nowrap"
-                        height={{ default: "100%" }}
-                        width={{ default: "100%" }}
-                        bottom={{ default: "0" }}
-                        left={{ default: "0" }}
-                        justify={{ default: "end" }}
-                      />
-                    </Column>
-                  {/if}
+              <Row height="100%" class="px-[4px] pb-[2px]">
+                <Column
+                  width="{savings ? savings.prefixRatio * 40 : 1}px"
+                  class="flex-1 pt-[16px]"
+                >
+                  <Text
+                    text={{ default: savings?.prefix || "" }}
+                    {frame}
+                    name="square.savingsPrefix"
+                    class="font-semibold font-gotham-condensed text-white whitespace-nowrap"
+                    height={{ default: "100%" }}
+                    width={{ default: "100%" }}
+                    bottom={{ default: "0" }}
+                    left={{ default: "0" }}
+                    justify={{ default: "end" }}
+                  />
+                </Column>
 
-                  <Column width="28px">
-                    <Text
-                      text={{ default: savings.number }}
-                      {frame}
-                      name="savingsNumber"
-                      class="font-kapra font-bold text-adonis-yellow-dark tracking-tighter"
-                      height={{ default: "100%" }}
-                      width={{ default: "100%" }}
-                      bottom={{ default: "-5px" }}
-                      left={{ default: "0" }}
-                      style={{ "-webkit-text-stroke": "0.75px #1D3983" }}
-                      justify={{ default: "center" }}
-                    />
+                <Column width="28px">
+                  <Text
+                    text={{ default: savings?.number || "" }}
+                    {frame}
+                    name="square.savingsNumber"
+                    class="font-kapra font-bold text-adonis-yellow-dark tracking-tighter"
+                    height={{ default: "100%" }}
+                    width={{ default: "100%" }}
+                    bottom={{ default: "-5px" }}
+                    left={{ default: "0" }}
+                    style={{ "-webkit-text-stroke": "0.75px #1D3983" }}
+                    justify={{ default: "center" }}
+                  />
 
-                    <Text
-                      text={{ default: savings.percent }}
-                      {frame}
-                      name="savingsPercent"
-                      class="font-kapra font-bold text-adonis-yellow-dark tracking-tighter"
-                      height={{ default: "14px" }}
-                      width={{ default: "14px" }}
-                      top={{ default: "4px" }}
-                      right={{ default: "-12px" }}
-                      style={{ "-webkit-text-stroke": "0.75px #1D3983" }}
-                      justify={{ default: "start" }}
-                    />
-                  </Column>
+                  <Text
+                    text={{ default: savings?.percent || "" }}
+                    {frame}
+                    name="square.savingsPercent"
+                    class="font-kapra font-bold text-adonis-yellow-dark tracking-tighter"
+                    height={{ default: "14px" }}
+                    width={{ default: "14px" }}
+                    top={{ default: "4px" }}
+                    right={{ default: "-12px" }}
+                    style={{ "-webkit-text-stroke": "0.75px #1D3983" }}
+                    justify={{ default: "start" }}
+                  />
+                </Column>
 
-                  {#if savings.suffix}
-                    <Column
-                      width="{savings.suffixRatio * 40}px"
-                      class="flex-1 pt-[16px]"
-                    >
-                      <Text
-                        text={{ default: savings.suffix }}
-                        {frame}
-                        name="savingsSuffix"
-                        class="font-semibold font-gotham-condensed text-white text-[10px] whitespace-nowrap"
-                        height={{ default: "100%" }}
-                        width={{ default: "100%" }}
-                        bottom={{ default: "0" }}
-                        left={{ default: "0" }}
-                        justify={{ default: "start" }}
-                      />
-                    </Column>
-                  {/if}
-                </Row>
-              </Column>
-            </Row>
-          {/if}
+                <Column
+                  width="{savings ? savings.suffixRatio * 40 : 1}px"
+                  class="flex-1 pt-[16px]"
+                >
+                  <Text
+                    text={{ default: savings?.suffix || "" }}
+                    {frame}
+                    name="square.savingsSuffix"
+                    class="font-semibold font-gotham-condensed text-white text-[10px] whitespace-nowrap"
+                    height={{ default: "100%" }}
+                    width={{ default: "100%" }}
+                    bottom={{ default: "0" }}
+                    left={{ default: "0" }}
+                    justify={{ default: "start" }}
+                  />
+                </Column>
+              </Row>
+            </Column>
+          </Row>
 
           {#if price}
             <!-- PRICE -->
@@ -674,8 +620,8 @@
                     <Text
                       text={{ default: price.dollars }}
                       {frame}
-                      name="priceDollars"
-                      class="font-kapra text-adonis-red-medium font-bold text-[60px] leading-[55px]"
+                      name="square.priceDollars"
+                      class="font-kapra text-adonis-red-medium font-bold"
                       height={{ default: "100%" }}
                       width={{ default: "100%" }}
                       bottom={{ default: "0" }}
@@ -690,7 +636,7 @@
                       <Text
                         text={{ default: price.cents }}
                         {frame}
-                        name="priceCents"
+                        name="square.priceCents"
                         class="font-kapra text-adonis-red-medium font-bold"
                         height={{ default: "100%" }}
                         width={{ default: "100%" }}
@@ -704,7 +650,7 @@
                       <Text
                         text={{ default: price.unit }}
                         {frame}
-                        name="priceUnit"
+                        name="square.priceUnit"
                         class="text-adonis-red-medium justify-start"
                         height={{ default: "12px" }}
                         width={{ default: "100%" }}
@@ -722,7 +668,7 @@
                   <Text
                     text={{ default: "+TX" }}
                     {frame}
-                    name="priceTax"
+                    name="square.priceTax"
                     class="text-adonis-red-medium font-semibold"
                     height={{ default: "14px" }}
                     width={{ default: "100%" }}
@@ -736,63 +682,70 @@
 
           <!-- PRODUCT NAME -->
           {#if frame["item.0.name"]}
-            <Row height="52px" class="mt-[-10px]">
+            <Row height="64px" class="mt-[-10px] flex-1">
               <Text
                 text={{ bind: "item.0.name" }}
                 {frame}
-                name="name"
-                class=" font-bold font-gotham-condensed text-adonis-blue-extralight text-right"
+                name="square.name"
+                class="font-bold font-gotham-condensed text-adonis-blue-extralight text-right"
+                debug={true}
                 height={{ default: "100%" }}
                 width={{ default: "100%" }}
                 top={{ default: "0" }}
                 left={{ default: "0" }}
+                align={{ default: "center" }}
+                justify={{ default: "end" }}
               />
             </Row>
           {/if}
 
           <!-- PRODUCT DESCRIPTION -->
           {#if frame["item.0.description"]}
-            <Row height="22px">
+            <Row height="32px" class="pb-[2px] flex-1">
               <Text
                 text={{ bind: "item.0.description" }}
                 {frame}
-                name="productDescription"
+                name="square.productDescription"
                 class="text-adonis-blue-extralight text-right font-gotham-condensed"
                 height={{ default: "100%" }}
                 width={{ default: "100%" }}
                 top={{ default: "0" }}
                 left={{ default: "0" }}
+                align={{ default: "center" }}
+                justify={{ default: "end" }}
               />
             </Row>
           {/if}
 
           {#if frame["item.0.alternatePrice"]}
-            <Row height="12px" class="py-[2px]">
+            <Row height="14px" class="py-[2px] flex-1">
               <Text
                 text={{ bind: "item.0.alternatePrice" }}
                 {frame}
-                name="alternatePrice"
+                name="square.alternatePrice"
                 class=" text-adonis-blue-extralight text-right font-gotham-condensed"
                 height={{ default: "100%" }}
                 width={{ default: "100%" }}
                 top={{ default: "0" }}
                 left={{ default: "0" }}
+                align={{ default: "center" }}
                 justify={{ default: "end" }}
               />
             </Row>
           {/if}
 
           {#if frame["item.0.regularPrice"]}
-            <Row height="12px" class="py-[2px]">
+            <Row height="14px" class="py-[2px] flex-1">
               <Text
                 text={{ bind: "item.0.regularPrice" }}
                 {frame}
-                name="regularPrice"
+                name="square.regularPrice"
                 class=" text-adonis-blue-extralight text-right font-gotham-condensed"
                 height={{ default: "100%" }}
                 width={{ default: "100%" }}
                 top={{ default: "0" }}
                 left={{ default: "0" }}
+                align={{ default: "center" }}
                 justify={{ default: "end" }}
               />
             </Row>
@@ -804,7 +757,7 @@
       <Row height="30px" class="px-0 pt-[6px] pb-[10px]">
         <Text
           {frame}
-          name="validity"
+          name="square.validity"
           text={{ default: validity }}
           class="font-gotham-condensed text-adonis-blue-extralight"
           align={{ default: "center" }}
@@ -821,14 +774,7 @@
   <!-- WIDE LAYOUT (728x90) -->
   <div
     class="bg-[#EDD2A9] bg-[url('{assetsRoot}/images/ad/adonis/bg-adonis-stone-728x90.svg')] bg-cover h-full w-full overflow-hidden"
-    use:animation={{
-      controller: animationController,
-      options: {
-        name: "fadeIn",
-        normal: { duration: 250 },
-        reverse: { delay: 5000, duration: 50 },
-      },
-    }}
+    use:animation={animationParams}
   >
     <Row height="100%" class="px-[8px] gap-[8px]">
       <!-- ADONIS LOGO -->
@@ -843,7 +789,7 @@
             class="object-contain"
             height={{ default: "100%" }}
             left={{ default: "0" }}
-            name="adonisLogo"
+            name="wide.adonisLogo"
             top={{ default: "0" }}
             width={{ default: "100%" }}
           />
@@ -860,7 +806,7 @@
             class="object-contain"
             height={{ default: "100%" }}
             left={{ default: "0" }}
-            name="productImage"
+            name="wide.productImage"
             top={{ default: "0" }}
             width={{ default: "100%" }}
           />
@@ -873,7 +819,7 @@
             {frame}
             height={{ default: "33%" }}
             left={{ default: "0" }}
-            name="logo1"
+            name="wide.logo1"
             top={{ default: "0" }}
             width={{ default: "33%" }}
           />
@@ -883,7 +829,7 @@
             class="object-contain object-[right_top]"
             {frame}
             height={{ default: "33%" }}
-            name="logo2"
+            name="wide.logo2"
             right={{ default: "0" }}
             top={{ default: "0" }}
             width={{ default: "33%" }}
@@ -895,7 +841,7 @@
             {frame}
             height={{ default: "33%" }}
             left={{ default: "0" }}
-            name="logo3"
+            name="wide.logo3"
             bottom={{ default: "0" }}
             width={{ default: "33%" }}
           />
@@ -905,7 +851,7 @@
             class="object-contain object-[right_bottom]"
             {frame}
             height={{ default: "33%" }}
-            name="logo4"
+            name="wide.logo4"
             right={{ default: "0" }}
             bottom={{ default: "0" }}
             width={{ default: "33%" }}
@@ -915,15 +861,14 @@
 
       <!-- SAVINGS AND PRICE SECTION -->
       <Column width="90px">
-        {#if savings}
-          <!-- SAVINGS -->
-          <Row height="28px" class="mt-[4px]">
+        <!-- SAVINGS -->
+        <Row height="28px" class="mt-[4px]">
             <!-- BACKGROUND -->
             <Column width="69px">
               <Text
                 text={{ default: "" }}
                 {frame}
-                name="savingsBackground"
+                name="wide.savingsBackground"
                 class="bg-adonis-blue-lighter rounded-tl-md rounded-br-md border border-white"
                 height={{ default: "21px" }}
                 width={{ default: "100%" }}
@@ -932,30 +877,28 @@
               />
 
               <Row height="100%" class="px-[4px] pb-[2px]">
-                {#if savings.prefix}
-                  <Column
-                    width="{savings.prefixRatio * 40}px"
-                    class="flex-1 pt-[16px]"
-                  >
-                    <Text
-                      text={{ default: savings.prefix }}
-                      {frame}
-                      name="savingsPrefix"
-                      class="font-semibold font-gotham-condensed text-white whitespace-nowrap"
-                      height={{ default: "100%" }}
-                      width={{ default: "100%" }}
-                      bottom={{ default: "0" }}
-                      left={{ default: "0" }}
-                      justify={{ default: "end" }}
-                    />
-                  </Column>
-                {/if}
+                <Column
+                  width="{savings ? savings.prefixRatio * 40 : 1}px"
+                  class="flex-1 pt-[16px]"
+                >
+                  <Text
+                    text={{ default: savings?.prefix || "" }}
+                    {frame}
+                    name="wide.savingsPrefix"
+                    class="font-semibold font-gotham-condensed text-white whitespace-nowrap"
+                    height={{ default: "100%" }}
+                    width={{ default: "100%" }}
+                    bottom={{ default: "0" }}
+                    left={{ default: "0" }}
+                    justify={{ default: "end" }}
+                  />
+                </Column>
 
                 <Column width="28px">
                   <Text
-                    text={{ default: savings.number }}
+                    text={{ default: savings?.number || "" }}
                     {frame}
-                    name="savingsNumber"
+                    name="wide.savingsNumber"
                     class="font-kapra font-bold text-adonis-yellow-dark tracking-tighter"
                     height={{ default: "100%" }}
                     width={{ default: "100%" }}
@@ -966,9 +909,9 @@
                   />
 
                   <Text
-                    text={{ default: savings.percent }}
+                    text={{ default: savings?.percent || "" }}
                     {frame}
-                    name="savingsPercent"
+                    name="wide.savingsPercent"
                     class="font-kapra font-bold text-adonis-yellow-dark tracking-tighter"
                     height={{ default: "14px" }}
                     width={{ default: "14px" }}
@@ -979,39 +922,35 @@
                   />
                 </Column>
 
-                {#if savings.suffix}
-                  <Column
-                    width="{savings.suffixRatio * 40}px"
-                    class="flex-1 pt-[16px]"
-                  >
-                    <Text
-                      text={{ default: savings.suffix }}
-                      {frame}
-                      name="savingsSuffix"
-                      class="font-semibold font-gotham-condensed text-white text-[10px] whitespace-nowrap"
-                      height={{ default: "100%" }}
-                      width={{ default: "100%" }}
-                      bottom={{ default: "0" }}
-                      left={{ default: "0" }}
-                      justify={{ default: "start" }}
-                    />
-                  </Column>
-                {/if}
+                <Column
+                  width="{savings ? savings.suffixRatio * 40 : 1}px"
+                  class="flex-1 pt-[16px]"
+                >
+                  <Text
+                    text={{ default: savings?.suffix || "" }}
+                    {frame}
+                    name="wide.savingsSuffix"
+                    class="font-semibold font-gotham-condensed text-white text-[10px] whitespace-nowrap"
+                    height={{ default: "100%" }}
+                    width={{ default: "100%" }}
+                    bottom={{ default: "0" }}
+                    left={{ default: "0" }}
+                    justify={{ default: "start" }}
+                  />
+                </Column>
               </Row>
             </Column>
           </Row>
-        {/if}
 
-        {#if price}
-          <!-- PRICE -->
-          <Row height="60px" class="mt-[-6px]">
+        <!-- PRICE -->
+        <Row height="60px" class="mt-[-6px]">
             <Column width="69px">
               <Row height="100%">
-                <Column width={price.dollars.length === 1 ? "30px" : "39px"}>
+                <Column width={price?.dollars?.length === 1 ? "30px" : "39px"}>
                   <Text
-                    text={{ default: price.dollars }}
+                    text={{ default: price?.dollars || "" }}
                     {frame}
-                    name="priceDollars"
+                    name="wide.priceDollars"
                     class="font-kapra text-adonis-red-medium font-bold text-[60px] leading-[55px]"
                     height={{ default: "100%" }}
                     width={{ default: "100%" }}
@@ -1023,32 +962,28 @@
                 </Column>
 
                 <Column width="30px">
-                  {#if price.cents}
-                    <Text
-                      text={{ default: price.cents }}
-                      {frame}
-                      name="priceCents"
-                      class="font-kapra text-adonis-red-medium font-bold"
-                      height={{ default: "100%" }}
-                      width={{ default: "100%" }}
-                      top={{ default: "2px" }}
-                      left={{ default: "0" }}
-                      style={{ "-webkit-text-stroke": "2px white" }}
-                    />
-                  {/if}
+                  <Text
+                    text={{ default: price?.cents || "" }}
+                    {frame}
+                    name="wide.priceCents"
+                    class="font-kapra text-adonis-red-medium font-bold"
+                    height={{ default: "100%" }}
+                    width={{ default: "100%" }}
+                    top={{ default: "2px" }}
+                    left={{ default: "0" }}
+                    style={{ "-webkit-text-stroke": "2px white" }}
+                  />
 
-                  {#if price.unit}
-                    <Text
-                      text={{ default: price.unit }}
-                      {frame}
-                      name="priceUnit"
-                      class="text-adonis-red-medium justify-start"
-                      height={{ default: "12px" }}
-                      width={{ default: "100%" }}
-                      top={{ default: "34px" }}
-                      left={{ default: "0" }}
-                    />
-                  {/if}
+                  <Text
+                    text={{ default: price?.unit || "" }}
+                    {frame}
+                    name="wide.priceUnit"
+                    class="text-adonis-red-medium justify-start"
+                    height={{ default: "12px" }}
+                    width={{ default: "100%" }}
+                    top={{ default: "34px" }}
+                    left={{ default: "0" }}
+                  />
                 </Column>
               </Row>
             </Column>
@@ -1059,7 +994,7 @@
                 <Text
                   text={{ default: "+TX" }}
                   {frame}
-                  name="priceTax"
+                  name="wide.priceTax"
                   class="text-adonis-red-medium font-semibold"
                   height={{ default: "14px" }}
                   width={{ default: "100%" }}
@@ -1069,7 +1004,6 @@
               </Column>
             {/if}
           </Row>
-        {/if}
       </Column>
 
       <!-- PRODUCT NAME AND DESCRIPTION -->
@@ -1079,7 +1013,7 @@
             <Text
               text={{ bind: "item.0.name" }}
               {frame}
-              name="name"
+              name="wide.name"
               class="font-bold font-gotham-condensed text-adonis-blue-extralight text-leftttttttttttttttttttttttttttttttttttttttttttttttttt leading-none"
               height={{ default: "100%" }}
               width={{ default: "100%" }}
@@ -1094,7 +1028,7 @@
             <Text
               text={{ bind: "item.0.description" }}
               {frame}
-              name="productDescription"
+              name="wide.productDescription"
               class="text-adonis-blue-extralight text-left font-gotham-condensed text-[14px] leading-none"
               height={{ default: "100%" }}
               width={{ default: "100%" }}
@@ -1109,7 +1043,7 @@
             <Text
               text={{ bind: "item.0.alternatePrice" }}
               {frame}
-              name="alternatePrice"
+              name="wide.alternatePrice"
               class="text-adonis-blue-extralight text-left font-gotham-condensed text-[14px] leading-none"
               height={{ default: "100%" }}
               width={{ default: "100%" }}
@@ -1124,7 +1058,7 @@
             <Text
               text={{ bind: "item.0.regularPrice" }}
               {frame}
-              name="regularPrice"
+              name="wide.regularPrice"
               class="text-adonis-blue-extralight text-left font-gotham-condensed text-[14px] leading-none"
               height={{ default: "100%" }}
               width={{ default: "100%" }}
@@ -1142,7 +1076,7 @@
           <Link
             href={{ bind: "item.0.link" }}
             {frame}
-            name="ctaLink"
+            name="wide.ctaLink"
             text={{
               default: lang === "en" ? "SEE OUR FLYER" : "VOIR NOTRE FLYER",
             }}
@@ -1160,7 +1094,7 @@
         <Row height="26px" class="p-[6px]">
           <Text
             {frame}
-            name="validity"
+            name="wide.validity"
             text={{ default: validity }}
             class="font-gotham-condensed text-adonis-blue-extralight text-right"
             height={{ default: "100%" }}

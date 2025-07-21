@@ -40,7 +40,7 @@
           class="object-contain object-center"
           height={{ default: "100%" }}
           left={{ default: "0" }}
-          name="image"
+          name="square.image"
           top={{ default: "0" }}
           width={{ default: "100%" }}
         />
@@ -51,7 +51,7 @@
           {frame}
           height={{ default: "33%" }}
           left={{ default: "0" }}
-          name="logo1"
+          name="square.logo1"
           top={{ default: "0" }}
           width={{ default: "33%" }}
         />
@@ -61,7 +61,7 @@
           class="object-contain object-[right_top]"
           {frame}
           height={{ default: "33%" }}
-          name="logo2"
+          name="square.logo2"
           right={{ default: "0" }}
           top={{ default: "0" }}
           width={{ default: "33%" }}
@@ -74,7 +74,7 @@
           {frame}
           height={{ default: "33%" }}
           left={{ default: "0" }}
-          name="logo3"
+          name="square.logo3"
           width={{ default: "33%" }}
         />
         <Image
@@ -84,7 +84,7 @@
           class="object-contain object-[right_bottom]"
           {frame}
           height={{ default: "33%" }}
-          name="logo4"
+          name="square.logo4"
           right={{ default: "0" }}
           width={{ default: "33%" }}
         />
@@ -115,7 +115,7 @@
         width={{ default: "100%" }}
         top={{ default: "0" }}
         left={{ default: "0" }}
-        name="savings"
+        name="square.savings"
       />
 
       <Text
@@ -126,7 +126,7 @@
         width={{ default: "100%" }}
         top={{ default: "35px" }}
         left={{ default: "0" }}
-        name="price"
+        name="square.price"
       />
 
       <Text
@@ -137,7 +137,7 @@
         width={{ default: "100%" }}
         top={{ default: "80px" }}
         left={{ default: "0" }}
-        name="regularPrice"
+        name="square.regularPrice"
       />
 
       <Text
@@ -148,7 +148,7 @@
         width={{ default: "100%" }}
         top={{ default: "100px" }}
         left={{ default: "0" }}
-        name="name"
+        name="square.name"
       />
 
       <Text
@@ -158,7 +158,7 @@
         width={{ default: "100%" }}
         top={{ default: "145px" }}
         left={{ default: "0" }}
-        name="description"
+        name="square.description"
       />
     </div>
   </div>
@@ -171,7 +171,7 @@
         {frame}
         height={{ default: "100%" }}
         left={{ default: "0" }}
-        name="link"
+        name="square.link"
         text={{
           default: args.lang === "en" ? "SEE OUR FLYER" : "VOIR NOTRE FLYER",
         }}
@@ -184,7 +184,7 @@
         src={{ bind: "item.0.retailerLogoUrl" }}
         class="object-contain object-center"
         height={{ default: "100%" }}
-        name="retailerLogo"
+        name="square.retailerLogo"
         right={{ default: "0" }}
         top={{ default: "0" }}
         width={{ default: "50%" }}

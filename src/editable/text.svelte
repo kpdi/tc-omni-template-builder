@@ -68,6 +68,7 @@
      * Optional CSS class(es) to apply to the Text component.
      */
     class?: string;
+    debug?: boolean;
     /**
      * Optional justification property for the content.
      */
@@ -79,6 +80,7 @@
 
   const {
     class: cls,
+    debug = false,
     frame,
     name,
     style: styleObj = {},
@@ -136,7 +138,7 @@
       style:top={"top" in vars ? vars.top : undefined}
       style:width={"width" in vars ? vars.width : undefined}
     >
-      <span {@attach autoSize()}>
+      <span {@attach autoSize(debug)}>
         {vars.text}
       </span>
     </div>
@@ -148,9 +150,5 @@
     display: flex;
     line-height: 1;
     position: absolute;
-  }
-  span {
-    max-height: 100%;
-    max-width: 100%;
   }
 </style>
