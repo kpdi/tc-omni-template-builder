@@ -40,16 +40,14 @@ function nexusToJsDate(date: string): Date {
 }
 
 export function getValidity(
-  validFrom: string,
-  validTo: string,
+  from: string | undefined,
+  to: string | undefined,
   lang: Language
 ) {
-  const { validFromStr, validToStr } = getValidityStrings(
-    validFrom,
-    validTo,
-    lang
-  );
-
+  if (!from || !to) {
+    return "";
+  }
+  const { validFromStr, validToStr } = getValidityStrings(from, to, lang);
   return lang === "en"
     ? `Valid from ${validFromStr} to ${validToStr}`
     : `Valide du ${validFromStr} au ${validToStr}`;

@@ -48,11 +48,6 @@ const autoSize = (debug = false): Attachment<HTMLElement> => {
       document.fonts.load(font).then(async ([fontFace]) => {
         if (fontFace) {
           await fontFace.loaded;
-          console.log({
-            text: node.innerText,
-            font,
-            fontFace,
-          });
         }
         resize(node, debug);
 
