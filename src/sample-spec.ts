@@ -33,8 +33,8 @@ export const spec = {
   mode: "auto" as RenderMode,
   size: [300, 250] as RenderSize,
   templateId: 0,
-  // size: [300, 600],
-  // size: [320, 50],
-  // size: [728, 90],
+  // size: [300, 600] as RenderSize,
+  // size: [320, 50] as RenderSize,
+  // size: [728, 90] as RenderSize,
   // size: [970, 250],
 };

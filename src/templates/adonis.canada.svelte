@@ -10,41 +10,31 @@
   import Link from "../editable/link.svelte";
   import Text from "../editable/text.svelte";
   import type { RenderArgs } from "../template";
+  import { parsePrice } from "../utils/price";
+  import { parseSavings } from "../utils/savings";
   import { getValidity } from "../utils/validity";
-
-  const { args }: { args: RenderArgs<typeof ITEMS_PER_FRAME> } = $props();
-  const { animationController, lang } = args;
-  const frame = $derived(args.frame);
-  const aspectRatio = $derived(args.size[0] / args.size[1]);
 
   const assetsRoot =
     "https://iheyhknkyvnxvedrtxqk.supabase.co/storage/v1/object/public/assets";
 
-  // Shared parsing logic for savings and price
-  const savings = $derived.by(() => {
-    if (!frame["item.0.savings"]) return null;
-    const match = frame["item.0.savings"].match(/^(.*?)(\d+)(%?)(.*)$/);
-    const [, prefix, number, percent, suffix] = match ?? ["", "", "", "", ""];
-    const prefixRatio = prefix.length / (prefix.length + suffix.length);
-    const suffixRatio = 1 - prefixRatio;
-    return { prefix, number, percent, suffix, prefixRatio, suffixRatio };
-  });
+  const { args }: { args: RenderArgs<typeof ITEMS_PER_FRAME> } = $props();
+  const { animationController, lang } = args;
 
-  const price = $derived.by(() => {
-    if (!frame["item.0.price"]) return null;
-    const [dollars, cents] = frame["item.0.price"]
-      .split(" /")[0]
-      .replace("$", "")
-      .split(/[.,]/);
-    const unit = frame["item.0.price"].includes("/")
-      ? `/${frame["item.0.price"].split("/")[1]}`
-      : null;
-    return { dollars, cents, unit };
-  });
-
+  const frame = $derived(args.frame);
+  const aspectRatio = $derived(args.size[0] / args.size[1]);
+  const price = $derived(parsePrice(frame["item.0.price"]));
+  const savings = $derived(parseSavings(frame["item.0.savings"]));
   const validity = $derived(
     getValidity(frame["item.0.validFrom"], frame["item.0.validTo"], lang)
   );
+  const animationParams = $derived({
+    controller: animationController,
+    options: {
+      name: "fadeIn",
+      normal: { duration: 250 },
+      reverse: { delay: 5000, duration: 50 },
+    },
+  });
 </script>
 
 <svelte:head>
@@ -63,14 +53,7 @@
   <!-- THIN LAYOUT (320x50) -->
   <div
     class="bg-[#CC112C] bg-[url('{assetsRoot}/images/ad/adonis/bg-adonis-canada-320x50.svg')] bg-cover h-full w-full overflow-hidden flex"
-    use:animation={{
-      controller: animationController,
-      options: {
-        name: "fadeIn",
-        normal: { duration: 250 },
-        reverse: { delay: 5000, duration: 50 },
-      },
-    }}
+    use:animation={animationParams}
   >
     <Row height="100%" class="px-[8px] py-[6px]">
       <!-- LOGO -->
@@ -114,14 +97,7 @@
   <!-- TALL LAYOUT (300x600) -->
   <div
     class="bg-[#CC112C] bg-[url('{assetsRoot}/images/ad/adonis/bg-adonis-canada-300x600.svg')] bg-cover h-full w-full overflow-hidden"
-    use:animation={{
-      controller: animationController,
-      options: {
-        name: "fadeIn",
-        normal: { duration: 250 },
-        reverse: { delay: 5000, duration: 50 },
-      },
-    }}
+    use:animation={animationParams}
   >
     <Column width="100%" class="p-[10px]">
       <!-- HEADER WITH LOGO -->
@@ -205,10 +181,10 @@
       <Row height="164px">
         <Column width="140px" class="pt-[40px]">
           <!-- SAVINGS -->
-          {#if savings}
-            <!-- SAVINGS -->
-            <Row height="48px" class="pr-[40px]">
-              <!-- BACKGROUND -->
+          <!-- SAVINGS -->
+          <Row height="48px" class="pr-[40px]">
+            <!-- BACKGROUND -->
+            {#if savings}
               <Text
                 text={{ default: "" }}
                 {frame}
@@ -219,137 +195,127 @@
                 bottom={{ default: "0" }}
                 left={{ default: "0" }}
               />
+            {/if}
 
-              <Row height="100%" class="p-[4px]">
-                {#if savings.prefix}
-                  <Column
-                    width="{savings.prefixRatio * 48}px"
-                    class="flex-1 pr-[4px] pb-[6px] pt-[24px]"
-                  >
-                    <Text
-                      text={{ default: savings.prefix }}
-                      {frame}
-                      name="tall.savingsPrefix"
-                      class="font-semibold font-gotham-condensed text-white justify-end whitespace-nowrap"
-                      height={{ default: "100%" }}
-                      width={{ default: "100%" }}
-                      bottom={{ default: "0" }}
-                      left={{ default: "0" }}
-                    />
-                  </Column>
-                {/if}
-
-                <Column width="{savings.number.length === 1 ? 18 : 36}px">
-                  <Text
-                    text={{ default: savings.number }}
-                    {frame}
-                    name="tall.savingsNumber"
-                    class="font-kapra font-bold text-adonis-yellow-dark tracking-tighter justify-center"
-                    height={{ default: "100%" }}
-                    width={{ default: "100%" }}
-                    bottom={{ default: "0" }}
-                    left={{ default: "0" }}
-                    style={{ "-webkit-text-stroke": "0.75px #1D3983" }}
-                  />
-
-                  <Text
-                    text={{ default: savings.percent }}
-                    {frame}
-                    name="tall.savingsPercent"
-                    class="font-kapra font-bold text-adonis-yellow-dark tracking-tighter justify-start"
-                    height={{ default: "18px" }}
-                    width={{ default: "14px" }}
-                    top={{ default: "-2px" }}
-                    right={{ default: "-14px" }}
-                    style={{ "-webkit-text-stroke": "0.75px #1D3983" }}
-                  />
-                </Column>
-
-                {#if savings.suffix}
-                  <Column
-                    width="{savings.suffixRatio * 48}px"
-                    class="flex-1 pl-[4px] pb-[6px] pt-[24px]"
-                  >
-                    <Text
-                      text={{ default: savings.suffix }}
-                      {frame}
-                      name="tall.savingsSuffix"
-                      class="font-semibold font-gotham-condensed text-white whitespace-nowrap"
-                      height={{ default: "100%" }}
-                      width={{ default: "100%" }}
-                      bottom={{ default: "0" }}
-                      left={{ default: "0" }}
-                    />
-                  </Column>
-                {/if}
-              </Row>
-            </Row>
-          {/if}
-
-          <!-- PRICE -->
-          {#if price}
-            <Row height="116px" class="mt-[-14px]">
-              <Column width={price.dollars.length === 1 ? "32px" : "64px"}>
+            <Row height="100%" class="p-[4px]">
+              <Column
+                width="{savings ? savings.prefixRatio * 48 : 1}px"
+                class="flex-1 pr-[4px] pb-[6px] pt-[24px]"
+              >
                 <Text
-                  text={{ default: price.dollars }}
+                  text={{ default: savings?.prefix || "" }}
                   {frame}
-                  name="tall.priceDollars"
-                  class="font-kapra text-white font-bold"
+                  name="tall.savingsPrefix"
+                  class="font-semibold font-gotham-condensed text-white justify-end whitespace-nowrap"
                   height={{ default: "100%" }}
                   width={{ default: "100%" }}
                   bottom={{ default: "0" }}
                   left={{ default: "0" }}
-                  style={{ "-webkit-text-stroke": "2px #572D2E" }}
-                  justify={{ default: "center" }}
                 />
               </Column>
 
-              <Column width="36px">
-                {#if price.cents}
-                  <Text
-                    text={{ default: price.cents }}
-                    {frame}
-                    name="tall.priceCents"
-                    class="font-kapra text-white font-bold"
-                    height={{ default: "100%" }}
-                    width={{ default: "100%" }}
-                    top={{ default: "4px" }}
-                    left={{ default: "0" }}
-                    style={{ "-webkit-text-stroke": "2px #572D2E" }}
-                  />
-                {/if}
+              <Column width="{savings?.number?.length === 1 ? 18 : 36}px">
+                <Text
+                  text={{ default: savings?.number || "" }}
+                  {frame}
+                  name="tall.savingsNumber"
+                  class="font-kapra font-bold text-adonis-yellow-dark tracking-tighter justify-center"
+                  height={{ default: "100%" }}
+                  width={{ default: "100%" }}
+                  bottom={{ default: "0" }}
+                  left={{ default: "0" }}
+                  style={{ "-webkit-text-stroke": "0.75px #1D3983" }}
+                />
 
-                {#if price.unit}
-                  <Text
-                    text={{ default: price.unit }}
-                    {frame}
-                    name="tall.priceUnit"
-                    class="text-white"
-                    height={{ default: "20px" }}
-                    width={{ default: "100%" }}
-                    top={{ default: "56px" }}
-                    left={{ default: "6px" }}
-                  />
-                {/if}
+                <Text
+                  text={{ default: savings?.percent || "" }}
+                  {frame}
+                  name="tall.savingsPercent"
+                  class="font-kapra font-bold text-adonis-yellow-dark tracking-tighter justify-start"
+                  height={{ default: "18px" }}
+                  width={{ default: "14px" }}
+                  top={{ default: "-2px" }}
+                  right={{ default: "-14px" }}
+                  style={{ "-webkit-text-stroke": "0.75px #1D3983" }}
+                />
               </Column>
 
-              <!-- TAX -->
-              {#if frame["item.0.tax"] === "excluded"}
-                <Column width="24px" class="p-[2px]">
-                  <Text
-                    text={{ default: "+TX" }}
-                    {frame}
-                    name="tall.priceTax"
-                    class="text-white font-semibold"
-                    height={{ default: "14px" }}
-                    width={{ default: "100%" }}
-                    top={{ default: "12px" }}
-                    left={{ default: "0" }}
-                  />
-                </Column>
-              {/if}
+              <Column
+                width="{savings ? savings.suffixRatio * 48 : 1}px"
+                class="flex-1 pl-[4px] pb-[6px] pt-[24px]"
+              >
+                <Text
+                  text={{ default: savings?.suffix || "" }}
+                  {frame}
+                  name="tall.savingsSuffix"
+                  class="font-semibold font-gotham-condensed text-white whitespace-nowrap"
+                  height={{ default: "100%" }}
+                  width={{ default: "100%" }}
+                  bottom={{ default: "0" }}
+                  left={{ default: "0" }}
+                />
+              </Column>
             </Row>
-          {/if}
+          </Row>
+
+          <!-- PRICE -->
+          <Row height="116px" class="mt-[-14px]">
+            <Column width={price?.dollars?.length === 1 ? "32px" : "64px"}>
+              <Text
+                text={{ default: price?.dollars || "" }}
+                {frame}
+                name="tall.priceDollars"
+                class="font-kapra text-white font-bold"
+                height={{ default: "100%" }}
+                width={{ default: "100%" }}
+                bottom={{ default: "0" }}
+                left={{ default: "0" }}
+                style={{ "-webkit-text-stroke": "2px #572D2E" }}
+                justify={{ default: "center" }}
+              />
+            </Column>
+
+            <Column width="36px">
+              <Text
+                text={{ default: price?.cents || "" }}
+                {frame}
+                name="tall.priceCents"
+                class="font-kapra text-white font-bold"
+                height={{ default: "100%" }}
+                width={{ default: "100%" }}
+                top={{ default: "4px" }}
+                left={{ default: "0" }}
+                style={{ "-webkit-text-stroke": "2px #572D2E" }}
+              />
+
+              <Text
+                text={{ default: price?.unit || "" }}
+                {frame}
+                name="tall.priceUnit"
+                class="text-white"
+                height={{ default: "20px" }}
+                width={{ default: "100%" }}
+                top={{ default: "56px" }}
+                left={{ default: "6px" }}
+              />
+            </Column>
+
+            <!-- TAX -->
+            {#if frame["item.0.tax"] === "excluded"}
+              <Column width="24px" class="p-[2px]">
+                <Text
+                  text={{ default: price ? "+TX" : "" }}
+                  {frame}
+                  name="tall.priceTax"
+                  class="text-white font-semibold"
+                  height={{ default: "14px" }}
+                  width={{ default: "100%" }}
+                  top={{ default: "12px" }}
+                  left={{ default: "0" }}
+                />
+              </Column>
+            {/if}
+          </Row>
         </Column>
 
         <Column width="140px">
@@ -460,19 +426,7 @@
   >
     <div
       class="relative h-full w-full flex flex-col"
-      use:animation={{
-        controller: animationController,
-        options: {
-          name: "fadeIn",
-          normal: {
-            duration: 250,
-          },
-          reverse: {
-            delay: 5000,
-            duration: 50,
-          },
-        },
-      }}
+      use:animation={animationParams}
     >
       <!-- TOP SECTION -->
       <Row height="220px">
@@ -578,11 +532,11 @@
 
         <!-- RIGHT COLUMN -->
         <Column width="102px" class="pr-[8px]">
-          {#if savings}
-            <!-- SAVINGS -->
-            <Row height="28px" class="mt-[4px]">
-              <!-- BACKGROUND -->
-              <Column width="69px">
+          <!-- SAVINGS -->
+          <Row height="28px" class="mt-[4px]">
+            <!-- BACKGROUND -->
+            <Column width="69px">
+              {#if savings}
                 <Text
                   text={{ default: "" }}
                   {frame}
@@ -593,150 +547,140 @@
                   bottom={{ default: "-6px" }}
                   left={{ default: "0" }}
                 />
+              {/if}
 
-                <Row height="100%" class="px-[4px] pb-[2px]">
-                  {#if savings.prefix}
-                    <Column
-                      width="{savings.prefixRatio * 40}px"
-                      class="flex-1 pt-[16px]"
-                    >
-                      <Text
-                        text={{ default: savings.prefix }}
-                        {frame}
-                        name="square.savingsPrefix"
-                        class="font-semibold font-gotham-condensed text-white whitespace-nowrap"
-                        height={{ default: "100%" }}
-                        width={{ default: "100%" }}
-                        bottom={{ default: "0" }}
-                        left={{ default: "0" }}
-                        justify={{ default: "end" }}
-                      />
-                    </Column>
-                  {/if}
-
-                  <Column width="28px">
-                    <Text
-                      text={{ default: savings.number }}
-                      {frame}
-                      name="square.savingsNumber"
-                      class="font-kapra font-bold text-adonis-yellow-dark tracking-tighter"
-                      height={{ default: "100%" }}
-                      width={{ default: "100%" }}
-                      bottom={{ default: "-5px" }}
-                      left={{ default: "0" }}
-                      style={{ "-webkit-text-stroke": "0.75px #1D3983" }}
-                      justify={{ default: "center" }}
-                    />
-
-                    <Text
-                      text={{ default: savings.percent }}
-                      {frame}
-                      name="square.savingsPercent"
-                      class="font-kapra font-bold text-adonis-yellow-dark tracking-tighter"
-                      height={{ default: "14px" }}
-                      width={{ default: "14px" }}
-                      top={{ default: "4px" }}
-                      right={{ default: "-12px" }}
-                      style={{ "-webkit-text-stroke": "0.75px #1D3983" }}
-                      justify={{ default: "start" }}
-                    />
-                  </Column>
-
-                  {#if savings.suffix}
-                    <Column
-                      width="{savings.suffixRatio * 40}px"
-                      class="flex-1 pt-[16px]"
-                    >
-                      <Text
-                        text={{ default: savings.suffix }}
-                        {frame}
-                        name="square.savingsSuffix"
-                        class="font-semibold font-gotham-condensed text-white text-[10px] whitespace-nowrap"
-                        height={{ default: "100%" }}
-                        width={{ default: "100%" }}
-                        bottom={{ default: "0" }}
-                        left={{ default: "0" }}
-                        justify={{ default: "start" }}
-                      />
-                    </Column>
-                  {/if}
-                </Row>
-              </Column>
-            </Row>
-          {/if}
-
-          {#if price}
-            <!-- PRICE -->
-            <Row height="60px" class="mt-[-6px]">
-              <Column width="69px">
-                <Row height="100%">
-                  <Column width={price.dollars.length === 1 ? "30px" : "39px"}>
-                    <Text
-                      text={{ default: price.dollars }}
-                      {frame}
-                      name="square.priceDollars"
-                      class="font-kapra text-white font-bold text-[60px] leading-[55px]"
-                      height={{ default: "100%" }}
-                      width={{ default: "100%" }}
-                      bottom={{ default: "0" }}
-                      left={{ default: "0" }}
-                      style={{ "-webkit-text-stroke": "1px #572D2E" }}
-                      justify={{ default: "center" }}
-                    />
-                  </Column>
-
-                  <Column width="30px">
-                    {#if price.cents}
-                      <Text
-                        text={{ default: price.cents }}
-                        {frame}
-                        name="square.priceCents"
-                        class="font-kapra text-white font-bold"
-                        height={{ default: "100%" }}
-                        width={{ default: "100%" }}
-                        top={{ default: "2px" }}
-                        left={{ default: "0" }}
-                        style={{ "-webkit-text-stroke": "1px #572D2E" }}
-                      />
-                    {/if}
-
-                    {#if price.unit}
-                      <Text
-                        text={{ default: price.unit }}
-                        {frame}
-                        name="square.priceUnit"
-                        class="text-white justify-start"
-                        height={{ default: "12px" }}
-                        width={{ default: "100%" }}
-                        top={{ default: "34px" }}
-                        left={{ default: "0" }}
-                      />
-                    {/if}
-                  </Column>
-                </Row>
-              </Column>
-
-              <!-- TAX -->
-              {#if frame["item.0.tax"] === "excluded"}
-                <Column width="16px" class="p-[2px]">
+              <Row height="100%" class="px-[4px] pb-[2px]">
+                <Column
+                  width="{savings ? savings.prefixRatio * 40 : 1}px"
+                  class="flex-1 pt-[16px]"
+                >
                   <Text
-                    text={{ default: "+TX" }}
+                    text={{ default: savings?.prefix || "" }}
                     {frame}
-                    name="square.priceTax"
-                    class="text-white font-semibold"
-                    height={{ default: "14px" }}
+                    name="square.savingsPrefix"
+                    class="font-semibold font-gotham-condensed text-white whitespace-nowrap"
+                    height={{ default: "100%" }}
                     width={{ default: "100%" }}
-                    top={{ default: "8px" }}
+                    bottom={{ default: "0" }}
+                    left={{ default: "0" }}
+                    justify={{ default: "end" }}
+                  />
+                </Column>
+
+                <Column width="28px">
+                  <Text
+                    text={{ default: savings?.number || "" }}
+                    {frame}
+                    name="square.savingsNumber"
+                    class="font-kapra font-bold text-adonis-yellow-dark tracking-tighter"
+                    height={{ default: "100%" }}
+                    width={{ default: "100%" }}
+                    bottom={{ default: "-5px" }}
+                    left={{ default: "0" }}
+                    style={{ "-webkit-text-stroke": "0.75px #1D3983" }}
+                    justify={{ default: "center" }}
+                  />
+
+                  <Text
+                    text={{ default: savings?.percent || "" }}
+                    {frame}
+                    name="square.savingsPercent"
+                    class="font-kapra font-bold text-adonis-yellow-dark tracking-tighter"
+                    height={{ default: "14px" }}
+                    width={{ default: "14px" }}
+                    top={{ default: "4px" }}
+                    right={{ default: "-12px" }}
+                    style={{ "-webkit-text-stroke": "0.75px #1D3983" }}
+                    justify={{ default: "start" }}
+                  />
+                </Column>
+
+                <Column
+                  width="{savings ? savings.suffixRatio * 40 : 1}px"
+                  class="flex-1 pt-[16px]"
+                >
+                  <Text
+                    text={{ default: savings?.suffix || "" }}
+                    {frame}
+                    name="square.savingsSuffix"
+                    class="font-semibold font-gotham-condensed text-white text-[10px] whitespace-nowrap"
+                    height={{ default: "100%" }}
+                    width={{ default: "100%" }}
+                    bottom={{ default: "0" }}
+                    left={{ default: "0" }}
+                    justify={{ default: "start" }}
+                  />
+                </Column>
+              </Row>
+            </Column>
+          </Row>
+
+          <!-- PRICE -->
+          <Row height="60px" class="mt-[-6px]">
+            <Column width="69px">
+              <Row height="100%">
+                <Column width={price?.dollars?.length === 1 ? "30px" : "39px"}>
+                  <Text
+                    text={{ default: price?.dollars || "" }}
+                    {frame}
+                    name="square.priceDollars"
+                    class="font-kapra text-white font-bold"
+                    height={{ default: "100%" }}
+                    width={{ default: "100%" }}
+                    bottom={{ default: "0" }}
+                    left={{ default: "0" }}
+                    style={{ "-webkit-text-stroke": "1px #572D2E" }}
+                    justify={{ default: "center" }}
+                  />
+                </Column>
+
+                <Column width="30px">
+                  <Text
+                    text={{ default: price?.cents || "" }}
+                    {frame}
+                    name="square.priceCents"
+                    class="font-kapra text-white font-bold"
+                    height={{ default: "100%" }}
+                    width={{ default: "100%" }}
+                    top={{ default: "2px" }}
+                    left={{ default: "0" }}
+                    style={{ "-webkit-text-stroke": "1px #572D2E" }}
+                  />
+
+                  <Text
+                    text={{ default: price?.unit || "" }}
+                    {frame}
+                    name="square.priceUnit"
+                    class="text-white justify-start"
+                    height={{ default: "12px" }}
+                    width={{ default: "100%" }}
+                    top={{ default: "34px" }}
                     left={{ default: "0" }}
                   />
                 </Column>
-              {/if}
-            </Row>
-          {/if}
+              </Row>
+            </Column>
+
+            <!-- TAX -->
+            {#if frame["item.0.tax"] === "excluded"}
+              <Column width="16px" class="p-[2px]">
+                <Text
+                  text={{ default: price ? "+TX" : "" }}
+                  {frame}
+                  name="square.priceTax"
+                  class="text-white font-semibold"
+                  height={{ default: "14px" }}
+                  width={{ default: "100%" }}
+                  top={{ default: "8px" }}
+                  left={{ default: "0" }}
+                />
+              </Column>
+            {/if}
+          </Row>
 
           <!-- PRODUCT NAME -->
           {#if frame["item.0.name"]}
-            <Row height="52px" class="mt-[-10px]">
+            <Row height="64px" class="mt-[-10px] flex-1">
               <Text
                 text={{ bind: "item.0.name" }}
                 {frame}
@@ -746,13 +690,15 @@
                 width={{ default: "100%" }}
                 top={{ default: "0" }}
                 left={{ default: "0" }}
+                align={{ default: "center" }}
+                justify={{ default: "end" }}
               />
             </Row>
           {/if}
 
           <!-- PRODUCT DESCRIPTION -->
           {#if frame["item.0.description"]}
-            <Row height="22px">
+            <Row height="32px" class="pb-[2px] flex-1">
               <Text
                 text={{ bind: "item.0.description" }}
                 {frame}
@@ -762,12 +708,14 @@
                 width={{ default: "100%" }}
                 top={{ default: "0" }}
                 left={{ default: "0" }}
+                align={{ default: "center" }}
+                justify={{ default: "end" }}
               />
             </Row>
           {/if}
 
           {#if frame["item.0.alternatePrice"]}
-            <Row height="12px" class="py-[2px]">
+            <Row height="14px" class="py-[2px] flex-1">
               <Text
                 text={{ bind: "item.0.alternatePrice" }}
                 {frame}
@@ -777,13 +725,14 @@
                 width={{ default: "100%" }}
                 top={{ default: "0" }}
                 left={{ default: "0" }}
+                align={{ default: "center" }}
                 justify={{ default: "end" }}
               />
             </Row>
           {/if}
 
           {#if frame["item.0.regularPrice"]}
-            <Row height="12px" class="py-[2px]">
+            <Row height="14px" class="py-[2px] flex-1">
               <Text
                 text={{ bind: "item.0.regularPrice" }}
                 {frame}
@@ -793,6 +742,7 @@
                 width={{ default: "100%" }}
                 top={{ default: "0" }}
                 left={{ default: "0" }}
+                align={{ default: "center" }}
                 justify={{ default: "end" }}
               />
             </Row>
@@ -821,14 +771,7 @@
   <!-- WIDE LAYOUT (728x90) -->
   <div
     class="bg-[#EDD2A9] bg-[url('{assetsRoot}/images/ad/adonis/bg-adonis-canada-728x90.svg')] bg-cover h-full w-full overflow-hidden"
-    use:animation={{
-      controller: animationController,
-      options: {
-        name: "fadeIn",
-        normal: { duration: 250 },
-        reverse: { delay: 5000, duration: 50 },
-      },
-    }}
+    use:animation={animationParams}
   >
     <Row height="100%" class="px-[8px] gap-[8px]">
       <!-- ADONIS LOGO -->
@@ -915,11 +858,11 @@
 
       <!-- SAVINGS AND PRICE SECTION -->
       <Column width="90px">
-        {#if savings}
-          <!-- SAVINGS -->
-          <Row height="28px" class="mt-[4px]">
-            <!-- BACKGROUND -->
-            <Column width="69px">
+        <!-- SAVINGS -->
+        <Row height="28px" class="mt-[4px]">
+          <!-- BACKGROUND -->
+          <Column width="69px">
+            {#if savings}
               <Text
                 text={{ default: "" }}
                 {frame}
@@ -930,146 +873,136 @@
                 bottom={{ default: "-6px" }}
                 left={{ default: "0" }}
               />
+            {/if}
 
-              <Row height="100%" class="px-[4px] pb-[2px]">
-                {#if savings.prefix}
-                  <Column
-                    width="{savings.prefixRatio * 40}px"
-                    class="flex-1 pt-[16px]"
-                  >
-                    <Text
-                      text={{ default: savings.prefix }}
-                      {frame}
-                      name="wide.savingsPrefix"
-                      class="font-semibold font-gotham-condensed text-white whitespace-nowrap"
-                      height={{ default: "100%" }}
-                      width={{ default: "100%" }}
-                      bottom={{ default: "0" }}
-                      left={{ default: "0" }}
-                      justify={{ default: "end" }}
-                    />
-                  </Column>
-                {/if}
-
-                <Column width="28px">
-                  <Text
-                    text={{ default: savings.number }}
-                    {frame}
-                    name="wide.savingsNumber"
-                    class="font-kapra font-bold text-adonis-yellow-dark tracking-tighter"
-                    height={{ default: "100%" }}
-                    width={{ default: "100%" }}
-                    bottom={{ default: "-5px" }}
-                    left={{ default: "0" }}
-                    style={{ "-webkit-text-stroke": "0.75px #1D3983" }}
-                    justify={{ default: "center" }}
-                  />
-
-                  <Text
-                    text={{ default: savings.percent }}
-                    {frame}
-                    name="wide.savingsPercent"
-                    class="font-kapra font-bold text-adonis-yellow-dark tracking-tighter"
-                    height={{ default: "14px" }}
-                    width={{ default: "14px" }}
-                    top={{ default: "4px" }}
-                    right={{ default: "-12px" }}
-                    style={{ "-webkit-text-stroke": "0.75px #1D3983" }}
-                    justify={{ default: "start" }}
-                  />
-                </Column>
-
-                {#if savings.suffix}
-                  <Column
-                    width="{savings.suffixRatio * 40}px"
-                    class="flex-1 pt-[16px]"
-                  >
-                    <Text
-                      text={{ default: savings.suffix }}
-                      {frame}
-                      name="wide.savingsSuffix"
-                      class="font-semibold font-gotham-condensed text-white text-[10px] whitespace-nowrap"
-                      height={{ default: "100%" }}
-                      width={{ default: "100%" }}
-                      bottom={{ default: "0" }}
-                      left={{ default: "0" }}
-                      justify={{ default: "start" }}
-                    />
-                  </Column>
-                {/if}
-              </Row>
-            </Column>
-          </Row>
-        {/if}
-
-        {#if price}
-          <!-- PRICE -->
-          <Row height="60px" class="mt-[-6px]">
-            <Column width="69px">
-              <Row height="100%">
-                <Column width={price.dollars.length === 1 ? "30px" : "39px"}>
-                  <Text
-                    text={{ default: price.dollars }}
-                    {frame}
-                    name="wide.priceDollars"
-                    class="font-kapra text-white font-bold text-[60px] leading-[55px]"
-                    height={{ default: "100%" }}
-                    width={{ default: "100%" }}
-                    bottom={{ default: "0" }}
-                    left={{ default: "0" }}
-                    style={{ "-webkit-text-stroke": "1px #572D2E" }}
-                    justify={{ default: "center" }}
-                  />
-                </Column>
-
-                <Column width="30px">
-                  {#if price.cents}
-                    <Text
-                      text={{ default: price.cents }}
-                      {frame}
-                      name="wide.priceCents"
-                      class="font-kapra text-white font-bold"
-                      height={{ default: "100%" }}
-                      width={{ default: "100%" }}
-                      top={{ default: "2px" }}
-                      left={{ default: "0" }}
-                      style={{ "-webkit-text-stroke": "1px #572D2E" }}
-                    />
-                  {/if}
-
-                  {#if price.unit}
-                    <Text
-                      text={{ default: price.unit }}
-                      {frame}
-                      name="wide.priceUnit"
-                      class="text-white justify-start"
-                      height={{ default: "12px" }}
-                      width={{ default: "100%" }}
-                      top={{ default: "34px" }}
-                      left={{ default: "0" }}
-                    />
-                  {/if}
-                </Column>
-              </Row>
-            </Column>
-
-            <!-- TAX -->
-            {#if frame["item.0.tax"] === "excluded"}
-              <Column width="16px" class="p-[2px]">
+            <Row height="100%" class="px-[4px] pb-[2px]">
+              <Column
+                width="{savings ? savings.prefixRatio * 40 : 1}px"
+                class="flex-1 pt-[16px]"
+              >
                 <Text
-                  text={{ default: "+TX" }}
+                  text={{ default: savings?.prefix || "" }}
                   {frame}
-                  name="wide.priceTax"
-                  class="text-white font-semibold"
-                  height={{ default: "14px" }}
+                  name="wide.savingsPrefix"
+                  class="font-semibold font-gotham-condensed text-white whitespace-nowrap"
+                  height={{ default: "100%" }}
                   width={{ default: "100%" }}
-                  top={{ default: "8px" }}
+                  bottom={{ default: "0" }}
+                  left={{ default: "0" }}
+                  justify={{ default: "end" }}
+                />
+              </Column>
+
+              <Column width="28px">
+                <Text
+                  text={{ default: savings?.number || "" }}
+                  {frame}
+                  name="wide.savingsNumber"
+                  class="font-kapra font-bold text-adonis-yellow-dark tracking-tighter"
+                  height={{ default: "100%" }}
+                  width={{ default: "100%" }}
+                  bottom={{ default: "-5px" }}
+                  left={{ default: "0" }}
+                  style={{ "-webkit-text-stroke": "0.75px #1D3983" }}
+                  justify={{ default: "center" }}
+                />
+
+                <Text
+                  text={{ default: savings?.percent || "" }}
+                  {frame}
+                  name="wide.savingsPercent"
+                  class="font-kapra font-bold text-adonis-yellow-dark tracking-tighter"
+                  height={{ default: "14px" }}
+                  width={{ default: "14px" }}
+                  top={{ default: "4px" }}
+                  right={{ default: "-12px" }}
+                  style={{ "-webkit-text-stroke": "0.75px #1D3983" }}
+                  justify={{ default: "start" }}
+                />
+              </Column>
+
+              <Column
+                width="{savings ? savings.suffixRatio * 40 : 1}px"
+                class="flex-1 pt-[16px]"
+              >
+                <Text
+                  text={{ default: savings?.suffix || "" }}
+                  {frame}
+                  name="wide.savingsSuffix"
+                  class="font-semibold font-gotham-condensed text-white text-[10px] whitespace-nowrap"
+                  height={{ default: "100%" }}
+                  width={{ default: "100%" }}
+                  bottom={{ default: "0" }}
+                  left={{ default: "0" }}
+                  justify={{ default: "start" }}
+                />
+              </Column>
+            </Row>
+          </Column>
+        </Row>
+
+        <!-- PRICE -->
+        <Row height="60px" class="mt-[-6px]">
+          <Column width="69px">
+            <Row height="100%">
+              <Column width={price?.dollars?.length === 1 ? "30px" : "39px"}>
+                <Text
+                  text={{ default: price?.dollars || "" }}
+                  {frame}
+                  name="wide.priceDollars"
+                  class="font-kapra text-white font-bold text-[60px] leading-[55px]"
+                  height={{ default: "100%" }}
+                  width={{ default: "100%" }}
+                  bottom={{ default: "0" }}
+                  left={{ default: "0" }}
+                  style={{ "-webkit-text-stroke": "1px #572D2E" }}
+                  justify={{ default: "center" }}
+                />
+              </Column>
+
+              <Column width="30px">
+                <Text
+                  text={{ default: price?.cents || "" }}
+                  {frame}
+                  name="wide.priceCents"
+                  class="font-kapra text-white font-bold"
+                  height={{ default: "100%" }}
+                  width={{ default: "100%" }}
+                  top={{ default: "2px" }}
+                  left={{ default: "0" }}
+                  style={{ "-webkit-text-stroke": "1px #572D2E" }}
+                />
+
+                <Text
+                  text={{ default: price?.unit || "" }}
+                  {frame}
+                  name="wide.priceUnit"
+                  class="text-white justify-start"
+                  height={{ default: "12px" }}
+                  width={{ default: "100%" }}
+                  top={{ default: "34px" }}
                   left={{ default: "0" }}
                 />
               </Column>
-            {/if}
-          </Row>
-        {/if}
+            </Row>
+          </Column>
+
+          <!-- TAX -->
+          {#if frame["item.0.tax"] === "excluded"}
+            <Column width="16px" class="p-[2px]">
+              <Text
+                text={{ default: price ? "+TX" : "" }}
+                {frame}
+                name="wide.priceTax"
+                class="text-white font-semibold"
+                height={{ default: "14px" }}
+                width={{ default: "100%" }}
+                top={{ default: "8px" }}
+                left={{ default: "0" }}
+              />
+            </Column>
+          {/if}
+        </Row>
       </Column>
 
       <!-- PRODUCT NAME AND DESCRIPTION -->
