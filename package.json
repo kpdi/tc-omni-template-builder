@@ -7,14 +7,22 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json"
+    "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
+    "push-build:dev": "cross-env ENV_FILE=.env.dev tsx scripts/push-build.ts",
+    "push-build:uat": "cross-env ENV_FILE=.env.uat tsx scripts/push-build.ts",
+    "push-build:prod": "cross-env ENV_FILE=.env.prod tsx scripts/push-build.ts"
   },
   "devDependencies": {
+    "@supabase/supabase-js": "^2.52.1",
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
     "@tailwindcss/browser": "^4.1.7",
     "@tsconfig/svelte": "^5.0.4",
+    "@types/node": "^24.1.0",
+    "cross-env": "^7.0.3",
+    "dotenv": "^17.2.0",
     "svelte": "^5.28.1",
     "svelte-check": "^4.1.6",
+    "tsx": "^4.20.3",
     "typescript": "~5.8.3",
     "vite": "^6.3.5",
     "vite-plugin-singlefile": "^2.2.0"
